@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/eye.png</file>
+        <file>images/16x16/lock.png</file>
+        <file>images/16x16/dialog-password.png</file>
+        <file>images/16x16/document-open-recent.png</file>
+        <file>images/16x16/text-editor.png</file>
+        <file>images/16x16/edit-delete.png</file>
+        <file>images/16x16/contact-new.png</file>
+        <file>images/16x16/edit-copy.png</file>
+        <file>images/16x16/document-save.png</file>
+        <file>images/16x16/document-open.png</file>
+        <file>images/16x16/document-new.png</file>
+    </qresource>
+</RCC>
