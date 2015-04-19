@@ -1,4 +1,6 @@
 #include "mainwindow.h"
+#include <QDebug>
+#include "cryptfiledevice.h"
 
 bool MainWindow::setPage(PageIndex::PageIndex index)
 {
@@ -14,6 +16,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui.MainToolBar->setVisible( false );
     setPage( PageIndex::FIRST );
 
+    QFile file("/tmp/test.in");
+    CryptFileDevice cryptFileDevice( &file, "132", "123" );
+
+    if ( ! cryptFileDevice.open(QIODevice::ReadWrite) )
+    {
+        qDebug() << "File is not open! Fuck YOU!";
+    }
+
+    QByteArray data = "Hello AES";
+    cryptFileDevice.write( data );
+    cryptFileDevice.reset();
+    qDebug() << cryptFileDevice.readAll();
+
+    cryptFileDevice.close();
 }
 
 void MainWindow::on_PButton_First_NewFile_clicked()
@@ -43,4 +59,9 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
     setPage( PageIndex::MAIN );
     ui.MainMenuBar->setVisible( true );
     ui.MainToolBar->setVisible( true );
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    qApp->exit(0);
 }

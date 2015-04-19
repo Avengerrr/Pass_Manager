@@ -11,11 +11,25 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = PassMan
 TEMPLATE = app
 
+CONFIG += c++11
+
+#openssl
+win32 {
+    INCLUDEPATH += c:/OpenSSL-Win32/include
+    LIBS += -Lc:/OpenSSL-Win32/bin -llibeay32
+}
+
+linux|macx {
+    LIBS += -lcrypto
+}
+
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    cryptfiledevice.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    cryptfiledevice.h
 
 FORMS    += mainwindow.ui
 

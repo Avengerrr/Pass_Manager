@@ -29,6 +29,7 @@ private slots:
     void on_PButton_First_OpenFile_clicked();
 
     void on_PButton_Open_OpenFile_clicked();
+    void on_actionExit_triggered();
 };
 
 #endif // MAINWINDOW_H
