@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui.MainToolBar->setVisible( false );
     setPage( PageIndex::FIRST );
 
-    QFile file("/tmp/test.in");
+    QFile file("C:/Users/Максим/Desktop/manda.txt");
     CryptFileDevice cryptFileDevice( &file, "132", "123" );
 
     if ( ! cryptFileDevice.open(QIODevice::ReadWrite) )

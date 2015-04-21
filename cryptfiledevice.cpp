@@ -352,13 +352,14 @@ bool CryptFileDevice::initCipher()
 {
     const EVP_CIPHER *cipher = EVP_enc_null();
     if (m_aesKeyLength == kAesKeyLength128)
-        cipher = EVP_aes_128_ctr();
+        cipher = EVP_aes_128_cbc();
     else if (m_aesKeyLength == kAesKeyLength192)
-        cipher = EVP_aes_192_ctr();
+        cipher = EVP_aes_192_cbc();
     else if (m_aesKeyLength == kAesKeyLength256)
-        cipher = EVP_aes_256_ctr();
+        cipher = EVP_aes_256_cbc();
     else
         Q_ASSERT_X(false, Q_FUNC_INFO, "Unknown value of AesKeyLength");
+
 
     EVP_CIPHER_CTX ctx;
 
