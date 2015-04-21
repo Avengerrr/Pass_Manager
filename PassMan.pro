@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,10 +26,17 @@ linux|macx {
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    cryptfiledevice.cpp
+    cryptfiledevice.cpp \
+    db/querysmanager.cpp \
+    db/connectionmanager.cpp \
+    definespath.cpp
 
 HEADERS  += mainwindow.h \
-    cryptfiledevice.h
+    cryptfiledevice.h \
+    db/querysmanager.h \
+    db/connectionmanager.h \
+    definespath.h \
+    globalenum.h
 
 FORMS    += mainwindow.ui
 

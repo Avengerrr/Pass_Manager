@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QMessageBox>
+#include <definespath.h>
 
 ConnectionManager::ConnectionManager()
 {
@@ -21,15 +22,15 @@ ConnectionManager::ConnectionManager()
     db = QSqlDatabase::addDatabase(dbDriv);
 
     // Попытка создания директории для БД
-    if( ! QDir().mkpath( "./db/" ) ){
+    if( ! QDir().mkpath( DefinesPath::dbPath() ) ){
         // Если создать не удалось - логируем и уведомляем пользователя
         qCritical() << "Cannot created work directory"
-                    << "\nPath: " << "./db";
+                    << "\nPath: " << DefinesPath::dbPath();
         QMessageBox::critical(0, QObject::tr("Critical"),
                               QObject::tr("It was not succeeded to create a directory for a database."));
     } else {
         // Непосредственно полезный код
-        db.setDatabaseName( "./PassMan.db" );
+        db.setDatabaseName( DefinesPath::dbPath(true) );
         db.setUserName( dbUser );
         db.setHostName( dbHost );
         db.setPassword( dbPass );

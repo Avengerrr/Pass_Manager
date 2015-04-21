@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include <QDebug>
 #include "cryptfiledevice.h"
+#include <db/connectionmanager.h>
+#include <db/querysmanager.h>
 
 bool MainWindow::setPage(PageIndex::PageIndex index)
 {
@@ -16,20 +18,24 @@ MainWindow::MainWindow(QWidget *parent) :
     ui.MainToolBar->setVisible( false );
     setPage( PageIndex::FIRST );
 
-    QFile file("C:/Users/Максим/Desktop/manda.txt");
-    CryptFileDevice cryptFileDevice( &file, "132", "123" );
+    ConnectionManager db;
+    db.open();
+    QuerysManager::createTables();
 
-    if ( ! cryptFileDevice.open(QIODevice::ReadWrite) )
-    {
-        qDebug() << "File is not open! Fuck YOU!";
-    }
+//    QFile file("C:/Users/Максим/Desktop/manda.txt");
+//    CryptFileDevice cryptFileDevice( &file, "132", "123" );
 
-    QByteArray data = "Hello AES";
-    cryptFileDevice.write( data );
-    cryptFileDevice.reset();
-    qDebug() << cryptFileDevice.readAll();
+//    if ( ! cryptFileDevice.open(QIODevice::ReadWrite) )
+//    {
+//        qDebug() << "File is not open! Fuck YOU!";
+//    }
 
-    cryptFileDevice.close();
+//    QByteArray data = "Hello AES";
+//    cryptFileDevice.write( data );
+//    cryptFileDevice.reset();
+//    qDebug() << cryptFileDevice.readAll();
+
+//    cryptFileDevice.close();
 }
 
 void MainWindow::on_PButton_First_NewFile_clicked()
