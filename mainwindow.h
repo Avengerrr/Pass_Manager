@@ -8,7 +8,8 @@ namespace PageIndex{
         FIRST     = 0,
         OPEN_FILE = 1,
         NEW_FILE  = 2,
-        MAIN      = 3
+        MAIN      = 3,
+        EDIT      = 4
     };
 }
 
@@ -30,6 +31,10 @@ private slots:
 
     void on_PButton_Open_OpenFile_clicked();
     void on_actionExit_triggered();
+    void on_actionNewRecord_triggered();
+    void on_toolButton_toggled(bool checked);
+    void on_PushButton_Edit_GeneratePassword_clicked();
+    void on_LineEdit_Edit_Password_textEdited(const QString &arg1);
 };
 
 #endif // MAINWINDOW_H

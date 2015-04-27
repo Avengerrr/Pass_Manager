@@ -11,5 +11,6 @@
         <file>images/16x16/document-save.png</file>
         <file>images/16x16/document-open.png</file>
         <file>images/16x16/document-new.png</file>
+        <file>images/logotip.png</file>
     </qresource>
 </RCC>

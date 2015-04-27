@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QDebug>
 #include "cryptfiledevice.h"
+#include "passwordgenerator.h"
 #include <db/connectionmanager.h>
 #include <db/querysmanager.h>
 
@@ -70,4 +71,50 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
 void MainWindow::on_actionExit_triggered()
 {
     qApp->exit(0);
+}
+
+void MainWindow::on_actionNewRecord_triggered()
+{
+    setPage( PageIndex::EDIT );
+}
+
+void MainWindow::on_toolButton_toggled(bool checked)
+{
+    return;
+}
+
+
+void MainWindow::on_PushButton_Edit_GeneratePassword_clicked()
+{
+    int type = 0;
+    int length = 0;
+
+    length = ui.SpinBox_Edit_PasswordLenght->value();
+
+    if( ui.CheckBox_Edit_Pas_ChType_Lower->isChecked() )
+        type |= PasswordGenerator::Lower;
+    if( ui.CheckBox_Edit_Pas_ChType_Upper->isChecked() )
+        type |= PasswordGenerator::Upper;
+    if( ui.CheckBox_Edit_Pas_ChType_Underline->isChecked() )
+        type |= PasswordGenerator::Underline;
+    if( ui.CheckBox_Edit_Pas_ChType_Minus->isChecked() )
+        type |= PasswordGenerator::Minus;
+    if( ui.CheckBox_Edit_Pas_ChType_Special->isChecked() )
+        type |= PasswordGenerator::Special;
+    if( ui.CheckBox_Edit_Pas_ChType_Numbers->isChecked() )
+        type |= PasswordGenerator::Numbers;
+
+
+
+    QString password = PasswordGenerator::getPassword(type, length);
+
+    ui.ProgressBar_Edit_PasswordQuality->setValue( PasswordGenerator::entropy(password) );
+    ui.LineEdit_Edit_Password->setText( password );
+    ui.LineEdit_Edit_ConfirmPassword->setText( password );
+}
+
+
+void MainWindow::on_LineEdit_Edit_Password_textEdited(const QString &password)
+{
+     ui.ProgressBar_Edit_PasswordQuality->setValue( PasswordGenerator::entropy(password) );
 }

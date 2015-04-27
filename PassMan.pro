@@ -29,14 +29,16 @@ SOURCES += main.cpp\
     cryptfiledevice.cpp \
     db/querysmanager.cpp \
     db/connectionmanager.cpp \
-    definespath.cpp
+    definespath.cpp \
+    passwordgenerator.cpp
 
 HEADERS  += mainwindow.h \
     cryptfiledevice.h \
     db/querysmanager.h \
     db/connectionmanager.h \
     definespath.h \
-    globalenum.h
+    globalenum.h \
+    passwordgenerator.h
 
 FORMS    += mainwindow.ui
 
