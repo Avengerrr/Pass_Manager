@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include "ui_mainwindow.h"
+#include <db/connectionmanager.h>
+#include "Data/data.h"
 
 namespace PageIndex{
     enum PageIndex{
@@ -17,11 +19,16 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
+    QString _filePath;
+    ConnectionManager _db;
+    Data _data;
+
     Ui::MainWindow ui;
     bool setPage(PageIndex::PageIndex index);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 
 private slots:
     void on_PButton_First_NewFile_clicked();
@@ -32,9 +39,11 @@ private slots:
     void on_PButton_Open_OpenFile_clicked();
     void on_actionExit_triggered();
     void on_actionNewRecord_triggered();
-    void on_toolButton_toggled(bool checked);
     void on_PushButton_Edit_GeneratePassword_clicked();
     void on_LineEdit_Edit_Password_textEdited(const QString &arg1);
+    void on_ToolButton_Edit_Toogle_Password_toggled(bool checked);
+    void on_PushButton_Edit_Save_clicked();
+    void on_PushButton_Edit_Cancel_clicked();
 };
 
 #endif // MAINWINDOW_H

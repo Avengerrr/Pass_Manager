@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>811</width>
-    <height>560</height>
+    <height>656</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -523,65 +523,33 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page">
+      <widget class="QWidget" name="Page_Edit">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_7">
+         <layout class="QVBoxLayout" name="VLay_Edit_Left">
           <item>
-           <layout class="QFormLayout" name="formLayout">
+           <layout class="QFormLayout" name="FLay_Edit_Group">
             <item row="0" column="0">
-             <widget class="QLabel" name="label">
+             <widget class="QLabel" name="Label_Edit_Group">
               <property name="text">
-               <string>Section:</string>
+               <string>Group:</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QComboBox" name="comboBox">
+             <widget class="QComboBox" name="ComboBox_Edit_Group">
               <property name="editable">
                <bool>true</bool>
               </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>&gt;&gt;</string>
+              <property name="minimumContentsLength">
+               <number>32</number>
               </property>
              </widget>
             </item>
-            <item>
-             <layout class="QFormLayout" name="formLayout_2">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Group:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QComboBox" name="comboBox_2">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
            </layout>
           </item>
           <item>
-           <widget class="QGroupBox" name="groupBox">
+           <widget class="QGroupBox" name="GroupBox_Edit_MainInfo">
             <property name="title">
              <string>Main info</string>
             </property>
@@ -590,43 +558,73 @@
               <number>16</number>
              </property>
              <item>
-              <widget class="QLineEdit" name="lineEdit">
+              <widget class="QLineEdit" name="LineEdit_Edit_Title">
+               <property name="dragEnabled">
+                <bool>true</bool>
+               </property>
                <property name="placeholderText">
                 <string>Title</string>
                </property>
+               <property name="clearButtonEnabled">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_2">
+              <widget class="QLineEdit" name="LineEdit_Edit_Url">
+               <property name="dragEnabled">
+                <bool>true</bool>
+               </property>
                <property name="placeholderText">
                 <string>URL</string>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEdit_3">
-               <property name="placeholderText">
-                <string>Login</string>
+               <property name="clearButtonEnabled">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout">
+              <widget class="QLineEdit" name="LineEdit_Edit_Login">
+               <property name="dragEnabled">
+                <bool>true</bool>
+               </property>
+               <property name="placeholderText">
+                <string>Login</string>
+               </property>
+               <property name="clearButtonEnabled">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="HLay_Edit_Password">
                <item>
                 <widget class="QLineEdit" name="LineEdit_Edit_Password">
+                 <property name="echoMode">
+                  <enum>QLineEdit::Password</enum>
+                 </property>
+                 <property name="dragEnabled">
+                  <bool>true</bool>
+                 </property>
                  <property name="placeholderText">
                   <string>Password</string>
+                 </property>
+                 <property name="clearButtonEnabled">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QToolButton" name="toolButton">
+                <widget class="QToolButton" name="ToolButton_Edit_Toogle_Password">
                  <property name="text">
                   <string>&lt;</string>
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
                    <normaloff>:/images/eye.png</normaloff>:/images/eye.png</iconset>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -647,23 +645,41 @@
              </item>
              <item>
               <widget class="QLineEdit" name="LineEdit_Edit_ConfirmPassword">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Password</enum>
+               </property>
+               <property name="dragEnabled">
+                <bool>true</bool>
+               </property>
                <property name="placeholderText">
                 <string>Confirm password</string>
+               </property>
+               <property name="clearButtonEnabled">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_7">
+              <widget class="QLineEdit" name="LineEdit_Edit_Answer">
                <property name="text">
                 <string/>
+               </property>
+               <property name="dragEnabled">
+                <bool>true</bool>
                </property>
                <property name="placeholderText">
                 <string>Answer for secret question</string>
                </property>
+               <property name="clearButtonEnabled">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_5">
+              <widget class="QLineEdit" name="LineEdit_Edit_Phone">
                <property name="toolTip">
                 <string>Phone number</string>
                </property>
@@ -694,10 +710,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_8"/>
-             </item>
-             <item>
-              <widget class="QPlainTextEdit" name="plainTextEdit">
+              <widget class="QPlainTextEdit" name="PlainTextEdit_Edit_Comment">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                  <horstretch>0</horstretch>
@@ -715,15 +728,15 @@
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_11">
+         <layout class="QVBoxLayout" name="VLay_Edit_Right">
           <item>
-           <widget class="QGroupBox" name="groupBox_2">
+           <widget class="QGroupBox" name="GroupBox_Edit_Password_Group">
             <property name="title">
              <string>Password</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_10">
              <item>
-              <widget class="QGroupBox" name="groupBox_3">
+              <widget class="QGroupBox" name="GroupBox_Edit_Password_Symbols_Group">
                <property name="title">
                 <string>Use following  character groups:</string>
                </property>
@@ -833,20 +846,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_5">
+           <widget class="QLabel" name="Label_Edit_Logo">
             <property name="text">
              <string/>
             </property>
@@ -865,16 +865,16 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <layout class="QHBoxLayout" name="HLay_Edit_Nav">
             <item>
-             <widget class="QPushButton" name="pushButton_2">
+             <widget class="QPushButton" name="PushButton_Edit_Cancel">
               <property name="text">
                <string>&lt; Cancel</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_3">
+             <widget class="QPushButton" name="PushButton_Edit_Save">
               <property name="text">
                <string>Save &gt;</string>
               </property>
@@ -896,7 +896,7 @@
      <x>0</x>
      <y>0</y>
      <width>811</width>
-     <height>21</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="MenuFile">
@@ -935,7 +935,7 @@
    <addaction name="separator"/>
    <addaction name="actionLock"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="StatusBar"/>
   <action name="actionCreateDatabase">
    <property name="icon">
     <iconset theme="document-new" resource="resources.qrc">
