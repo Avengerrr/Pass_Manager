@@ -4,6 +4,11 @@
 #include "passwordgenerator.h"
 
 #include <db/querysmanager.h>
+#include <QHeaderView>
+
+#include <QSqlRecord>
+#include <QSqlResult>
+#include <QString>
 
 /*! \~russian
  * \brief Метод для переключения страничной навигации
@@ -92,18 +97,73 @@ void MainWindow::on_PButton_First_OpenFile_clicked()
 }
 
 /*!
+ * \brief Метод для скрытия колонок в таблице
+ */
+void MainWindow::HideColumns()
+{
+    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::id) );
+    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::Resource) );
+    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::PassGroup) );
+    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::Description) );
+    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::CreateTime) );
+    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::PassLifeTime) );
+}
+
+/*!
+ * \brief Метод делает последнюю колонку адаптивной
+ */
+void MainWindow::setAdaptiveLastColumn()
+{
+    ui.TableView_Main_Records->horizontalHeader()->setStretchLastSection(true);
+}
+
+/*!
+ * \brief Метод производит настройка главной таблице
+ * Устанавливает модель
+ * Соеденяет сигналы и слоты
+ * Скрывает ненужные колонки
+ * Настраивает растяжение колонок
+ */
+void MainWindow::setMainTable()
+{
+    _TableModel.setTable(DataTable::tableName);
+    _TableModel.select();
+    connect( &_TableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+             ui.TableView_Main_Records, SLOT(dataChanged(QModelIndex,QModelIndex,QVector<int>)) );
+    ui.TableView_Main_Records->setModel( &_TableModel );
+    HideColumns();
+    setAdaptiveLastColumn();
+}
+
+/*!
  * \brief Обработчик клика на кнопку истинного открытия файла
  * Собственно берёт и дерзко его открывает!!!
  */
 void MainWindow::on_PButton_Open_OpenFile_clicked()
 {
     _filePath = ui.LineEdit_New_FilePath->text();
-    _db.open( QString::null ); /// \todo decrypt file and resave to database
+    _db.open( _filePath ); /// \todo decrypt file and resave to database
     QuerysManager::createTables();
 
     setPage( PageIndex::MAIN );
     ui.MainMenuBar->setVisible( true );
     ui.MainToolBar->setVisible( true );
+
+    setMainTable();
+
+
+
+    QString sql = "SELECT %1 FROM %2";
+    sql = sql.arg(DataTable::Fields::PassGroup, DataTable::tableName);
+    QSqlQuery query( sql );
+    if( query.exec() ){
+        QSet<QString> groups;
+        while( query.next() ){
+            groups += query.value(DataTable::Fields::PassGroup).toString();
+        }
+        ui.ComboBox_Main_Section->addItems( groups.toList() );
+        ui.ComboBox_Edit_Group->addItems( groups.toList() );
+    }
 }
 
 /*!
@@ -188,13 +248,7 @@ void MainWindow::on_ToolButton_Edit_Toogle_Password_toggled(bool checked)
     }
 }
 
-/*!
- * \brief Метод обрабатывает клик на кнопку сохранения записи
- * заполняет объект данными \todo вынести в отдельный метод
- * и вызывает метод Data::save() - для сохранения данных в БД
- * Переключает страницу на PageIndex::MAIN
- */
-void MainWindow::on_PushButton_Edit_Save_clicked()
+void MainWindow::setDataFromUi()
 {
     _data.setGroup( ui.ComboBox_Edit_Group->currentText() );
     _data.setResource( ui.LineEdit_Edit_Title->text() );
@@ -206,8 +260,20 @@ void MainWindow::on_PushButton_Edit_Save_clicked()
     _data.setPassLifeTime( QString::number( ui.DateTimeEdit_Edit_Pas_PassOutdate->dateTime().toMSecsSinceEpoch() ) );
     _data.setPhone( ui.LineEdit_Edit_Phone->text() );
     _data.setDescription( ui.PlainTextEdit_Edit_Comment->toPlainText() );
+}
+
+/*!
+ * \brief Метод обрабатывает клик на кнопку сохранения записи
+ * заполняет объект данными \todo вынести в отдельный метод
+ * и вызывает метод Data::save() - для сохранения данных в БД
+ * Переключает страницу на PageIndex::MAIN
+ */
+void MainWindow::on_PushButton_Edit_Save_clicked()
+{
+    setDataFromUi();
 
     _data.save();
+    _TableModel.select();
     setPage( PageIndex::MAIN );
 }
 
@@ -219,3 +285,41 @@ void MainWindow::on_PushButton_Edit_Cancel_clicked()
 {
     setPage( PageIndex::MAIN );
 }
+
+void MainWindow::on_actionCreateDatabase_triggered()
+{
+    _db.close();
+    /// \todo close database
+    setPage( PageIndex::NEW_FILE );
+}
+
+void MainWindow::on_actionOpenDatabase_triggered()
+{
+    _db.close();
+    /// \todo close database
+    setPage( PageIndex::OPEN_FILE );
+}
+
+void MainWindow::on_actionDeleteRecord_triggered()
+{
+//    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
+//    model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
+    QModelIndexList sel = ui.TableView_Main_Records->selectionModel()->selectedRows();
+    int first = sel.first().row();
+    int count = sel.last().row()
+              - sel.first().row();
+
+
+    _TableModel.removeRows(first, count);
+    _TableModel.submitAll();
+}
+
+
+
+
+
+
+
+
+
+

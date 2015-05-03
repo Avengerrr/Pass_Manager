@@ -4,8 +4,6 @@
 #include <QSqlError>
 #include <QVariant>
 
-const QString tableName("Data");
-
 QString Data::group() const
 {
     return _group;
@@ -137,7 +135,7 @@ bool Data::insert()
                            ") VALUES ("
                            ":PassGroup, :Resource, :Url, :Login,"
                            ":Password, :Mail, :Phone,"
-                           ":Answer, :CreateTime, :PassLifeTime, :Description);").arg(tableName) );
+                           ":Answer, :CreateTime, :PassLifeTime, :Description);").arg(DataTable::tableName) );
 
     query.bindValue( ":PassGroup", group() );
     query.bindValue( ":Resource", resource() );
@@ -171,7 +169,7 @@ bool Data::update()
                            "Answer = :Answer, CreateTime = :CreateTime,"
                            "PassLifeTime = :PassLifeTime, Description = :Description"
                            "WHERE id = :id;"
-                           ).arg(tableName) );
+                           ).arg(DataTable::tableName) );
 
     query.bindValue( ":id", id() );
     query.bindValue( ":PassGroup", group() );

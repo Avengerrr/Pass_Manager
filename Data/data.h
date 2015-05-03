@@ -4,6 +4,25 @@
 #include <QString>
 #include <QSqlQuery>
 
+namespace DataTable {
+    const QString tableName("Data");
+
+    namespace Fields{
+        const QString id("id");
+        const QString PassGroup("PassGroup");
+        const QString Resource("Resource");
+        const QString Url("Url");
+        const QString Login("Login");
+        const QString Password("Password");
+        const QString Mail("Mail");
+        const QString Phone("Phone");
+        const QString Answer("Answer");
+        const QString CreateTime("CreateTime");
+        const QString PassLifeTime("PassLifeTime");
+        const QString Description("Description");
+    }
+}
+
 class Data
 {
     bool    _editMode;
