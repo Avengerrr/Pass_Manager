@@ -5,6 +5,10 @@
 #include <QString>
 #include <random>
 
+/*!
+ * \brief Статический класс PasswordGenerator предназначен для операций с паролем
+ * таких как вычисление сложности, энтропии и генерации пароля
+ */
 class PasswordGenerator
 {
 
@@ -12,12 +16,12 @@ public:
 
 
     enum CharType{
-        Upper     = 2,
-        Lower     = 4,
-        Special   = 8,
-        Minus     = 16,
-        Numbers   = 32,
-        Underline = 64
+        Upper     = 2,   /// < Тип для символов в верхнем регистре
+        Lower     = 4,   /// < Тип для символов в нижнем регистре
+        Special   = 8,   /// < Тип для спец символов
+        Minus     = 16,  /// < Тип для символов знака минус
+        Numbers   = 32,  /// < Тип для символов-цифр
+        Underline = 64   /// < Тип для символов подчёркивания
     };
     static QString getPassword( int type, int length );
     static double  quality(const QString &password);

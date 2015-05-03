@@ -8,7 +8,7 @@ QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = PassMan
+TARGET = PasswordManager
 TEMPLATE = app
 
 CONFIG += c++11
@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     db/querysmanager.cpp \
     db/connectionmanager.cpp \
     definespath.cpp \
-    passwordgenerator.cpp
+    passwordgenerator.cpp \
+    Data/data.cpp
 
 HEADERS  += mainwindow.h \
     cryptfiledevice.h \
@@ -38,7 +39,8 @@ HEADERS  += mainwindow.h \
     db/connectionmanager.h \
     definespath.h \
     globalenum.h \
-    passwordgenerator.h
+    passwordgenerator.h \
+    Data/data.h
 
 FORMS    += mainwindow.ui
 

@@ -4,6 +4,10 @@
 #include <QMessageBox>
 #include <definespath.h>
 
+/*!
+ * \brief Конструктор, инициализирует начальные значения полей
+ * для подключения к БД, проверяет доступность драйвера
+ */
 ConnectionManager::ConnectionManager()
 {
     const QString dbUser("");
@@ -21,20 +25,9 @@ ConnectionManager::ConnectionManager()
 
     db = QSqlDatabase::addDatabase(dbDriv);
 
-    // Попытка создания директории для БД
-    if( ! QDir().mkpath( DefinesPath::dbPath() ) ){
-        // Если создать не удалось - логируем и уведомляем пользователя
-        qCritical() << "Cannot created work directory"
-                    << "\nPath: " << DefinesPath::dbPath();
-        QMessageBox::critical(0, QObject::tr("Critical"),
-                              QObject::tr("It was not succeeded to create a directory for a database."));
-    } else {
-        // Непосредственно полезный код
-        db.setDatabaseName( DefinesPath::dbPath(true) );
-        db.setUserName( dbUser );
-        db.setHostName( dbHost );
-        db.setPassword( dbPass );
-    }
+    db.setUserName( dbUser );
+    db.setHostName( dbHost );
+    db.setPassword( dbPass );
 }
 
 /*!
@@ -48,31 +41,70 @@ ConnectionManager::~ConnectionManager()
         db.close();
 }
 
-bool ConnectionManager::open()
+/*!
+ * \brief Метод для открытия подключения к базе данных
+ * \param filePath - путь к файлу базы данных
+ * \return true - в случае успеха подключения к БД
+ */
+bool ConnectionManager::open(QString &filePath)
 {
-    return db.open();
+    const QString dbFileName("PassMan.db");
+    if( filePath.isEmpty() || filePath.isNull() ){
+        filePath  = QStandardPaths::writableLocation( QStandardPaths::TempLocation );
+        filePath += QDir::separator();
+    }
+
+    if( ! QDir().mkpath( filePath ) ){
+        // Если создать не удалось - логируем и \todo уведомляем пользователя
+        qCritical() << "Cannot created work directory"
+                    << "\nPath: " << filePath;
+        return false;
+    } else {
+        // Непосредственно полезный код
+        db.setDatabaseName( filePath + dbFileName );
+        return db.open();
+    }
 }
 
+/*!
+ * \brief Метод для закрытия соединения с БД
+ */
 void ConnectionManager::close()
 {
     return db.close();
 }
 
+/*!
+ * \brief Метод для начала транзации
+ * \return успех операции
+ */
 bool ConnectionManager::transaction()
 {
     return db.transaction();
 }
 
+/*!
+ * \brief Метод для фиксирования изменений в транзации
+ * \return успех операции
+ */
 bool ConnectionManager::commit()
 {
     return db.commit();
 }
 
+/*!
+ * \brief Метод для отката изменений в транзации
+ * \return успех операции
+ */
 bool ConnectionManager::rollback()
 {
     return db.rollback();
 }
 
+/*!
+ * \brief Метод позволяет узнать открыто ли соединение с БД
+ * \return true - если соединение с БД открыто.
+ */
 bool ConnectionManager::isOpen()
 {
     return db.isOpen();
