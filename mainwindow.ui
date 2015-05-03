@@ -30,7 +30,7 @@
     <item>
      <widget class="QStackedWidget" name="StackedWidget">
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="Page_First">
        <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -458,21 +458,6 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <item>
-               <property name="text">
-                <string>Main</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Web</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Programs</string>
-               </property>
-              </item>
              </widget>
             </item>
             <item>
@@ -503,7 +488,23 @@
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <widget class="QTableView" name="TableView_Main_Records"/>
+           <widget class="QTableView" name="TableView_Main_Records">
+            <property name="sizeAdjustPolicy">
+             <enum>QAbstractScrollArea::AdjustIgnored</enum>
+            </property>
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
            <widget class="QFrame" name="Frame_Main_RecordInfo">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -896,7 +897,7 @@
      <x>0</x>
      <y>0</y>
      <width>811</width>
-     <height>27</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="MenuFile">
