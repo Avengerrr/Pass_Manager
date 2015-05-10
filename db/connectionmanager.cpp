@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <definespath.h>
+#include <QDateTime>
 
 /*!
  * \brief Конструктор, инициализирует начальные значения полей
@@ -48,20 +49,26 @@ ConnectionManager::~ConnectionManager()
  */
 bool ConnectionManager::open(QString &filePath)
 {
-    const QString dbFileName("PassMan.db");
+    QString dbFileName;
+    QString dbPath;
     if( filePath.isEmpty() || filePath.isNull() ){
-        filePath  = QStandardPaths::writableLocation( QStandardPaths::TempLocation );
-        filePath += QDir::separator();
+        dbFileName = QString::number( QDateTime::currentMSecsSinceEpoch() );
+        dbPath  = QStandardPaths::writableLocation( QStandardPaths::TempLocation );
+        dbPath += QDir::separator();
+    }else{
+        QFileInfo file( filePath );
+        dbFileName = file.baseName();
+        dbPath     = file.absolutePath();
     }
 
-    if( ! QDir().mkpath( filePath ) ){
+    if( ! QDir().mkpath( dbPath ) ){
         // Если создать не удалось - логируем и \todo уведомляем пользователя
         qCritical() << "Cannot created work directory"
-                    << "\nPath: " << filePath;
+                    << "\nPath: " << dbPath;
         return false;
     } else {
         // Непосредственно полезный код
-        db.setDatabaseName( filePath + dbFileName );
+        db.setDatabaseName( dbPath + QDir::separator() + dbFileName );
         return db.open();
     }
 }
