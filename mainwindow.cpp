@@ -9,6 +9,10 @@
 #include <QSqlRecord>
 #include <QSqlResult>
 #include <QString>
+#include <QCryptographicHash>
+#include <QDir>
+#include <QStandardPaths>
+#include <QSettings>
 
 /*! \~russian
  * \brief Метод для переключения страничной навигации
@@ -19,6 +23,13 @@ bool MainWindow::setPage(PageIndex::PageIndex index)
 {
     ui.StackedWidget->setCurrentIndex( index );
     return true;
+}
+
+QString MainWindow::getTmpDbPath()
+{
+    return QStandardPaths::writableLocation( QStandardPaths::TempLocation )
+            + QDir::separator()
+            + QString::number( QDateTime::currentMSecsSinceEpoch() );
 }
 
 /*!
@@ -44,11 +55,30 @@ MainWindow::~MainWindow(){
     /// \todo remove db file from temporary directory
     /// \todo YAY!
 
+    QFile achtungDB( _achtungDbPath );
+    CryptFileDevice encDB( _encDbPath, _password, _salt );
+
+    if ( ! encDB.open(QIODevice::ReadWrite) ){
+        qDebug() << "encDB File is not open! Fuck YOU!";
+    }
+    if ( ! achtungDB.open(QIODevice::ReadWrite) ){
+        qDebug() << "achtungDB File is not open! Fuck YOU!";
+    }
+
+    while ( ! achtungDB.atEnd() ) {
+        QByteArray tmp = achtungDB.read( _bufferSize );
+        encDB.write( tmp );
+    }
+
+    encDB.close();
+    achtungDB.close();
+
+    achtungDB.remove();
+
     //    QFile file("C:/Users/Максим/Desktop/manda.txt");
     //    CryptFileDevice cryptFileDevice( &file, "132", "123" );
 
-    //    if ( ! cryptFileDevice.open(QIODevice::ReadWrite) )
-    //    {
+    //    if ( ! cryptFileDevice.open(QIODevice::ReadWrite) ){
     //        qDebug() << "File is not open! Fuck YOU!";
     //    }
 
@@ -94,6 +124,8 @@ void MainWindow::on_PButton_New_Cancel_clicked()
 void MainWindow::on_PButton_First_OpenFile_clicked()
 {
     setPage( PageIndex::OPEN_FILE );
+    QSettings cfg;
+    ui.LineEdit_Open_FilePath->setText( cfg.value( "LastFile", "" ).toString() );
 }
 
 /*!
@@ -141,9 +173,51 @@ void MainWindow::setMainTable()
  */
 void MainWindow::on_PButton_Open_OpenFile_clicked()
 {
-    _filePath = ui.LineEdit_New_FilePath->text();
-    _db.open( _filePath ); /// \todo decrypt file and resave to database
+    _achtungDbPath = getTmpDbPath();
+    _encDbPath = ui.LineEdit_Open_FilePath->text();
+    _password  = QCryptographicHash::hash( ui.LineEdit_Open_Password->text().toUtf8(), QCryptographicHash::Md5 );
+    _salt      = ui.LineEdit_Open_Password->text().toUtf8().toHex();
+
+    //-----------------------------------------------
+    QFile achtungDB( _achtungDbPath );
+    CryptFileDevice encDB( _encDbPath, _password, _salt );
+
+    if ( ! encDB.open(QIODevice::ReadWrite) ){
+        qDebug() << "encDB File is not open! Fuck YOU!";
+    }
+    if ( ! achtungDB.open(QIODevice::ReadWrite) ){
+        qDebug() << "achtungDB File is not open! Fuck YOU!";
+    }
+
+    while ( ! encDB.atEnd() ) {
+        QByteArray tmp = encDB.read( _bufferSize );
+        achtungDB.write( tmp );
+    }
+
+    encDB.close();
+    achtungDB.close();
+
+
+    //    QFile file("C:/Users/Максим/Desktop/manda.txt");
+    //    CryptFileDevice cryptFileDevice( &file, "132", "123" );
+
+    //    if ( ! cryptFileDevice.open(QIODevice::ReadWrite) ){
+    //        qDebug() << "File is not open! Fuck YOU!";
+    //    }
+
+    //    QByteArray data = "Hello AES";
+    //    cryptFileDevice.write( data );
+    //    cryptFileDevice.reset();
+    //    qDebug() << cryptFileDevice.readAll();
+
+    //    cryptFileDevice.close();
+    //-----------------------------------------------
+
+    _db.open( _achtungDbPath ); /// \todo decrypt file and resave to database
     QuerysManager::createTables();
+
+    QSettings cfg;
+    cfg.setValue( "LastFile", _encDbPath );
 
     setPage( PageIndex::MAIN );
     ui.MainMenuBar->setVisible( true );
@@ -314,12 +388,17 @@ void MainWindow::on_actionDeleteRecord_triggered()
     _TableModel.submitAll();
 }
 
+void MainWindow::on_PButton_New_CreateDatabase_clicked()
+{
+    _password = QCryptographicHash::hash( ui.LineEdit_New_Password->text().toUtf8() , QCryptographicHash::Md5 );
+    _salt     = ui.LineEdit_Open_Password->text().toUtf8().toHex();
+    _achtungDbPath = getTmpDbPath();
+    _encDbPath = ui.LineEdit_New_FilePath->text();
 
-
-
-
-
-
+    setPage( PageIndex::MAIN );
+    ui.MainMenuBar->setVisible( true );
+    ui.MainToolBar->setVisible( true );
+}
 
 
 
