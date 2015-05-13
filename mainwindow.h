@@ -2,10 +2,12 @@
 #define MAINWINDOW_H
 
 #include "ui_mainwindow.h"
+#include "dbfileprocessing.h"
 #include <db/connectionmanager.h>
 #include "Data/data.h"
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
+#include <QSystemTrayIcon>
 
 namespace PageIndex{
     enum PageIndex{
@@ -21,16 +23,14 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
-    QString           _achtungDbPath;
-    QString           _encDbPath;
+    bool              _existsChanges = false;
     ConnectionManager _db;
     Data              _data;
     QSqlQueryModel    _QueryModel;
     QSqlTableModel    _TableModel;
+    QSystemTrayIcon   _trayIcon;
 
-    QByteArray _password;
-    QByteArray _salt;
-    size_t     _bufferSize = 51200;
+    DbFileProcessing *_dbFileProcessing;
 
     Ui::MainWindow ui;
     bool setPage(PageIndex::PageIndex index);
@@ -44,6 +44,7 @@ public:
     void setAdaptiveLastColumn();
     void setMainTable();
     void setDataFromUi();
+    bool hasSaveChanges();
 private slots:
     void on_PButton_First_NewFile_clicked();
     void on_PButton_Open_Cancel_clicked();
@@ -62,6 +63,11 @@ private slots:
     void on_actionOpenDatabase_triggered();
     void on_actionDeleteRecord_triggered();
     void on_PButton_New_CreateDatabase_clicked();
+    void on_actionSaveDatabase_triggered();
+    void on_actionEditRecord_triggered();
+
+protected:
+    void closeEvent(QCloseEvent *);
 };
 
 #endif // MAINWINDOW_H

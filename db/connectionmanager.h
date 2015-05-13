@@ -12,6 +12,7 @@ public:
     ~ConnectionManager();
     bool open(QString &filePath);
     void close();
+    bool remove();
     bool transaction();
     bool commit();
     bool rollback();

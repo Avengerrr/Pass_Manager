@@ -81,6 +81,12 @@ void ConnectionManager::close()
     return db.close();
 }
 
+bool ConnectionManager::remove()
+{
+    QFile file( db.databaseName() );
+    return file.remove();
+}
+
 /*!
  * \brief Метод для начала транзации
  * \return успех операции
