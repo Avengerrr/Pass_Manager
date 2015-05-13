@@ -28,13 +28,13 @@ bool MainWindow::setPage(PageIndex::PageIndex index)
         ui.MainMenuBar->setVisible( true );
         ui.MainToolBar->setVisible( true );
     }else
-    if(    index == PageIndex::FIRST
-        || index == PageIndex::OPEN_FILE
-        || index == PageIndex::NEW_FILE){
+        if(    index == PageIndex::FIRST
+               || index == PageIndex::OPEN_FILE
+               || index == PageIndex::NEW_FILE){
 
-        ui.MainMenuBar->setVisible( false );
-        ui.MainToolBar->setVisible( false );
-    }
+            ui.MainMenuBar->setVisible( false );
+            ui.MainToolBar->setVisible( false );
+        }
     return true;
 }
 
@@ -43,6 +43,12 @@ QString MainWindow::getTmpDbPath()
     return QStandardPaths::writableLocation( QStandardPaths::TempLocation )
             + QDir::separator()
             + QString::number( QDateTime::currentMSecsSinceEpoch() );
+}
+
+bool MainWindow::connectToDatabase(const QString &filePath)
+{
+    _db.open( filePath );
+    QuerysManager::createTables();
 }
 
 /*!
@@ -69,7 +75,7 @@ void MainWindow::closeEvent(QCloseEvent *){
  * \brief Деструктор Lego
  */
 MainWindow::~MainWindow(){
-//    _db.close();
+    //    _db.close();
 }
 
 /*!
@@ -163,14 +169,17 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
     size_t bufferSize = 51200;
     QString achtungDbPath = getTmpDbPath();
     QString encDbPath = ui.LineEdit_Open_FilePath->text();
-    QByteArray password  = QCryptographicHash::hash( ui.LineEdit_Open_Password->text().toUtf8(), QCryptographicHash::Md5 );
+    QByteArray password  = QCryptographicHash::hash( ui.LineEdit_Open_Password->text().toUtf8(),
+                                                     QCryptographicHash::Md5 );
     QByteArray salt      = ui.LineEdit_Open_Password->text().toUtf8().toHex();
 
-     _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
-     _dbFileProcessing->openEncryptFile();
-
-    _db.open( achtungDbPath );
-    QuerysManager::createTables();
+    if( _dbFileProcessing ){
+        qWarning() << "Чёта ты не в тот район забрёл...";
+        delete _dbFileProcessing;
+    }
+    _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
+    _dbFileProcessing->openEncryptFile();
+    connectToDatabase(achtungDbPath);
 
     cfg.setValue( "LastFile", encDbPath );
 
@@ -258,7 +267,7 @@ void MainWindow::on_PushButton_Edit_GeneratePassword_clicked()
  */
 void MainWindow::on_LineEdit_Edit_Password_textEdited(const QString &password)
 {
-     ui.ProgressBar_Edit_PasswordQuality->setValue( PasswordGenerator::entropy(password) );
+    ui.ProgressBar_Edit_PasswordQuality->setValue( PasswordGenerator::entropy(password) );
 }
 
 /*!
@@ -351,12 +360,12 @@ void MainWindow::on_actionDeleteRecord_triggered()
 {
     /// \todo Поименовать поля
     /// \warning Нихера не работает!!!
-//    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
-//    model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
+    //    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
+    //    model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
     QModelIndexList sel = ui.TableView_Main_Records->selectionModel()->selectedRows();
     int first = sel.first().row();
     int count = sel.last().row()
-              - sel.first().row();
+            - sel.first().row();
 
 
     _TableModel.removeRows(first, count);
@@ -367,7 +376,7 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
 {
     QByteArray password      = QCryptographicHash::hash( ui.LineEdit_New_Password->text().toUtf8(),
                                                          QCryptographicHash::Md5 );
-    QByteArray salt          = ui.LineEdit_Open_Password->text().toUtf8().toHex();
+    QByteArray salt          = ui.LineEdit_New_Password->text().toUtf8().toHex();
     QString    achtungDbPath = getTmpDbPath();
     QString    encDbPath     = ui.LineEdit_New_FilePath->text();
     size_t     bufferSize    = 51200;
@@ -377,6 +386,9 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
         delete _dbFileProcessing;
     }
     _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
+    connectToDatabase( achtungDbPath );
+    setMainTable();
+
 
     setPage( PageIndex::MAIN );
 }

@@ -35,6 +35,7 @@ private:
     Ui::MainWindow ui;
     bool setPage(PageIndex::PageIndex index);
     QString getTmpDbPath();
+    bool connectToDatabase(const QString &filePath);
 
 public:
     explicit MainWindow(QWidget *parent = 0);

@@ -10,7 +10,7 @@ private:
 public:
     ConnectionManager();
     ~ConnectionManager();
-    bool open(QString &filePath);
+    bool open(const QString &filePath);
     void close();
     bool remove();
     bool transaction();
