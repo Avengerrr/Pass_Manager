@@ -47,7 +47,7 @@ ConnectionManager::~ConnectionManager()
  * \param filePath - путь к файлу базы данных
  * \return true - в случае успеха подключения к БД
  */
-bool ConnectionManager::open(QString &filePath)
+bool ConnectionManager::open(const QString &filePath)
 {
     QString dbFileName;
     QString dbPath;
@@ -79,6 +79,12 @@ bool ConnectionManager::open(QString &filePath)
 void ConnectionManager::close()
 {
     return db.close();
+}
+
+bool ConnectionManager::remove()
+{
+    QFile file( db.databaseName() );
+    return file.remove();
 }
 
 /*!

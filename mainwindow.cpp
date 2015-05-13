@@ -3,6 +3,7 @@
 #include "cryptfiledevice.h"
 #include "passwordgenerator.h"
 
+
 #include <db/querysmanager.h>
 #include <QHeaderView>
 
@@ -13,6 +14,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QSettings>
+#include <QMessageBox>
 
 /*! \~russian
  * \brief Метод для переключения страничной навигации
@@ -22,6 +24,17 @@
 bool MainWindow::setPage(PageIndex::PageIndex index)
 {
     ui.StackedWidget->setCurrentIndex( index );
+    if( index == PageIndex::MAIN ){
+        ui.MainMenuBar->setVisible( true );
+        ui.MainToolBar->setVisible( true );
+    }else
+        if(    index == PageIndex::FIRST
+               || index == PageIndex::OPEN_FILE
+               || index == PageIndex::NEW_FILE){
+
+            ui.MainMenuBar->setVisible( false );
+            ui.MainToolBar->setVisible( false );
+        }
     return true;
 }
 
@@ -32,6 +45,12 @@ QString MainWindow::getTmpDbPath()
             + QString::number( QDateTime::currentMSecsSinceEpoch() );
 }
 
+bool MainWindow::connectToDatabase(const QString &filePath)
+{
+    _db.open( filePath );
+    QuerysManager::createTables();
+}
+
 /*!
  * \brief Конструктор Lego
  * \param parent
@@ -40,54 +59,23 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
     ui.setupUi(this);
-    ui.MainMenuBar->setVisible( false );
-    ui.MainToolBar->setVisible( false );
     setPage( PageIndex::FIRST );
+}
+
+void MainWindow::closeEvent(QCloseEvent *){
+    _db.close();
+    if( _existsChanges && hasSaveChanges() ){
+        _dbFileProcessing->saveEncryptFile();
+    }
+    _existsChanges = false;
+    _db.remove();
 }
 
 /*!
  * \brief Деструктор Lego
  */
 MainWindow::~MainWindow(){
-    _db.close();
-
-    /// \todo Crypt file and save
-    /// \todo remove db file from temporary directory
-    /// \todo YAY!
-
-    QFile achtungDB( _achtungDbPath );
-    CryptFileDevice encDB( _encDbPath, _password, _salt );
-
-    if ( ! encDB.open(QIODevice::ReadWrite) ){
-        qDebug() << "encDB File is not open! Fuck YOU!";
-    }
-    if ( ! achtungDB.open(QIODevice::ReadWrite) ){
-        qDebug() << "achtungDB File is not open! Fuck YOU!";
-    }
-
-    while ( ! achtungDB.atEnd() ) {
-        QByteArray tmp = achtungDB.read( _bufferSize );
-        encDB.write( tmp );
-    }
-
-    encDB.close();
-    achtungDB.close();
-
-    achtungDB.remove();
-
-    //    QFile file("C:/Users/Максим/Desktop/manda.txt");
-    //    CryptFileDevice cryptFileDevice( &file, "132", "123" );
-
-    //    if ( ! cryptFileDevice.open(QIODevice::ReadWrite) ){
-    //        qDebug() << "File is not open! Fuck YOU!";
-    //    }
-
-    //    QByteArray data = "Hello AES";
-    //    cryptFileDevice.write( data );
-    //    cryptFileDevice.reset();
-    //    qDebug() << cryptFileDevice.readAll();
-
-    //    cryptFileDevice.close();
+    //    _db.close();
 }
 
 /*!
@@ -96,6 +84,9 @@ MainWindow::~MainWindow(){
  */
 void MainWindow::on_PButton_First_NewFile_clicked()
 {
+    _trayIcon.setIcon( QIcon( ":/images/logotip.png" ) );
+    _trayIcon.show();
+    _trayIcon.showMessage("Hello", "Welcome To PassMan");
     setPage( PageIndex::NEW_FILE );
 }
 
@@ -173,55 +164,26 @@ void MainWindow::setMainTable()
  */
 void MainWindow::on_PButton_Open_OpenFile_clicked()
 {
-    _achtungDbPath = getTmpDbPath();
-    _encDbPath = ui.LineEdit_Open_FilePath->text();
-    _password  = QCryptographicHash::hash( ui.LineEdit_Open_Password->text().toUtf8(), QCryptographicHash::Md5 );
-    _salt      = ui.LineEdit_Open_Password->text().toUtf8().toHex();
-
-    //-----------------------------------------------
-    QFile achtungDB( _achtungDbPath );
-    CryptFileDevice encDB( _encDbPath, _password, _salt );
-
-    if ( ! encDB.open(QIODevice::ReadWrite) ){
-        qDebug() << "encDB File is not open! Fuck YOU!";
-    }
-    if ( ! achtungDB.open(QIODevice::ReadWrite) ){
-        qDebug() << "achtungDB File is not open! Fuck YOU!";
-    }
-
-    while ( ! encDB.atEnd() ) {
-        QByteArray tmp = encDB.read( _bufferSize );
-        achtungDB.write( tmp );
-    }
-
-    encDB.close();
-    achtungDB.close();
-
-
-    //    QFile file("C:/Users/Максим/Desktop/manda.txt");
-    //    CryptFileDevice cryptFileDevice( &file, "132", "123" );
-
-    //    if ( ! cryptFileDevice.open(QIODevice::ReadWrite) ){
-    //        qDebug() << "File is not open! Fuck YOU!";
-    //    }
-
-    //    QByteArray data = "Hello AES";
-    //    cryptFileDevice.write( data );
-    //    cryptFileDevice.reset();
-    //    qDebug() << cryptFileDevice.readAll();
-
-    //    cryptFileDevice.close();
-    //-----------------------------------------------
-
-    _db.open( _achtungDbPath ); /// \todo decrypt file and resave to database
-    QuerysManager::createTables();
-
     QSettings cfg;
-    cfg.setValue( "LastFile", _encDbPath );
+
+    size_t bufferSize = 51200;
+    QString achtungDbPath = getTmpDbPath();
+    QString encDbPath = ui.LineEdit_Open_FilePath->text();
+    QByteArray password  = QCryptographicHash::hash( ui.LineEdit_Open_Password->text().toUtf8(),
+                                                     QCryptographicHash::Md5 );
+    QByteArray salt      = ui.LineEdit_Open_Password->text().toUtf8().toHex();
+
+    if( _dbFileProcessing ){
+        qWarning() << "Чёта ты не в тот район забрёл...";
+        delete _dbFileProcessing;
+    }
+    _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
+    _dbFileProcessing->openEncryptFile();
+    connectToDatabase(achtungDbPath);
+
+    cfg.setValue( "LastFile", encDbPath );
 
     setPage( PageIndex::MAIN );
-    ui.MainMenuBar->setVisible( true );
-    ui.MainToolBar->setVisible( true );
 
     setMainTable();
 
@@ -234,6 +196,7 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
         QSet<QString> groups;
         while( query.next() ){
             groups += query.value(DataTable::Fields::PassGroup).toString();
+            qApp->processEvents();
         }
         ui.ComboBox_Main_Section->addItems( groups.toList() );
         ui.ComboBox_Edit_Group->addItems( groups.toList() );
@@ -258,6 +221,7 @@ void MainWindow::on_actionNewRecord_triggered()
 {
     setPage( PageIndex::EDIT );
     _data.setEditMode(false);
+    _existsChanges = true;
 }
 
 /*!
@@ -303,7 +267,7 @@ void MainWindow::on_PushButton_Edit_GeneratePassword_clicked()
  */
 void MainWindow::on_LineEdit_Edit_Password_textEdited(const QString &password)
 {
-     ui.ProgressBar_Edit_PasswordQuality->setValue( PasswordGenerator::entropy(password) );
+    ui.ProgressBar_Edit_PasswordQuality->setValue( PasswordGenerator::entropy(password) );
 }
 
 /*!
@@ -336,10 +300,20 @@ void MainWindow::setDataFromUi()
     _data.setDescription( ui.PlainTextEdit_Edit_Comment->toPlainText() );
 }
 
+bool MainWindow::hasSaveChanges()
+{
+    QMessageBox::StandardButton btn = QMessageBox::question(this,
+                                                            tr("Exit"),
+                                                            tr("Save changes?"),
+                                                            QMessageBox::Yes | QMessageBox::No);
+
+    return (btn == QMessageBox::Yes);
+}
+
 /*!
  * \brief Метод обрабатывает клик на кнопку сохранения записи
- * заполняет объект данными \todo вынести в отдельный метод
- * и вызывает метод Data::save() - для сохранения данных в БД
+ * заполняет объект данными и вызывает метод
+ * Data::save() - для сохранения данных в БД
  * Переключает страницу на PageIndex::MAIN
  */
 void MainWindow::on_PushButton_Edit_Save_clicked()
@@ -363,25 +337,35 @@ void MainWindow::on_PushButton_Edit_Cancel_clicked()
 void MainWindow::on_actionCreateDatabase_triggered()
 {
     _db.close();
-    /// \todo close database
+    if( _existsChanges && hasSaveChanges() ){
+        _dbFileProcessing->saveEncryptFile();
+    }
+    _db.remove();
+    _existsChanges = false;
     setPage( PageIndex::NEW_FILE );
 }
 
 void MainWindow::on_actionOpenDatabase_triggered()
 {
     _db.close();
-    /// \todo close database
+    if( _existsChanges && hasSaveChanges() ){
+        _dbFileProcessing->saveEncryptFile();
+    }
+    _db.remove();
+    _existsChanges = false;
     setPage( PageIndex::OPEN_FILE );
 }
 
 void MainWindow::on_actionDeleteRecord_triggered()
 {
-//    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
-//    model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
+    /// \todo Поименовать поля
+    /// \warning Нихера не работает!!!
+    //    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
+    //    model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
     QModelIndexList sel = ui.TableView_Main_Records->selectionModel()->selectedRows();
     int first = sel.first().row();
     int count = sel.last().row()
-              - sel.first().row();
+            - sel.first().row();
 
 
     _TableModel.removeRows(first, count);
@@ -390,15 +374,34 @@ void MainWindow::on_actionDeleteRecord_triggered()
 
 void MainWindow::on_PButton_New_CreateDatabase_clicked()
 {
-    _password = QCryptographicHash::hash( ui.LineEdit_New_Password->text().toUtf8() , QCryptographicHash::Md5 );
-    _salt     = ui.LineEdit_Open_Password->text().toUtf8().toHex();
-    _achtungDbPath = getTmpDbPath();
-    _encDbPath = ui.LineEdit_New_FilePath->text();
+    QByteArray password      = QCryptographicHash::hash( ui.LineEdit_New_Password->text().toUtf8(),
+                                                         QCryptographicHash::Md5 );
+    QByteArray salt          = ui.LineEdit_New_Password->text().toUtf8().toHex();
+    QString    achtungDbPath = getTmpDbPath();
+    QString    encDbPath     = ui.LineEdit_New_FilePath->text();
+    size_t     bufferSize    = 51200;
+
+    if( _dbFileProcessing ){
+        qWarning() << "Чёта ты не в тот район забрёл...";
+        delete _dbFileProcessing;
+    }
+    _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
+    connectToDatabase( achtungDbPath );
+    setMainTable();
+
 
     setPage( PageIndex::MAIN );
-    ui.MainMenuBar->setVisible( true );
-    ui.MainToolBar->setVisible( true );
 }
 
+void MainWindow::on_actionSaveDatabase_triggered()
+{
+    _dbFileProcessing->saveEncryptFile();
+    _existsChanges = false;
+}
 
-
+void MainWindow::on_actionEditRecord_triggered()
+{
+    /// \todo write code here
+    /// edit record
+    _existsChanges = true;
+}

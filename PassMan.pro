@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     db/connectionmanager.cpp \
     definespath.cpp \
     passwordgenerator.cpp \
-    Data/data.cpp
+    Data/data.cpp \
+    dbfileprocessing.cpp
 
 HEADERS  += mainwindow.h \
     cryptfiledevice.h \
@@ -40,7 +41,8 @@ HEADERS  += mainwindow.h \
     definespath.h \
     globalenum.h \
     passwordgenerator.h \
-    Data/data.h
+    Data/data.h \
+    dbfileprocessing.h
 
 FORMS    += mainwindow.ui
 
