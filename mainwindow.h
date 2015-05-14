@@ -15,7 +15,8 @@ namespace PageIndex{
         OPEN_FILE = 1,
         NEW_FILE  = 2,
         MAIN      = 3,
-        EDIT      = 4
+        EDIT      = 4,
+        LOCK      = 5
     };
 }
 
@@ -29,8 +30,9 @@ private:
     QSqlQueryModel    _QueryModel;
     QSqlTableModel    _TableModel;
     QSystemTrayIcon   _trayIcon;
+    QByteArray        _passwordHash;
 
-    DbFileProcessing *_dbFileProcessing;
+    DbFileProcessing *_dbFileProcessing = nullptr;
 
     Ui::MainWindow ui;
     bool setPage(PageIndex::PageIndex index);
@@ -46,6 +48,8 @@ public:
     void setMainTable();
     void setDataFromUi();
     bool hasSaveChanges();
+    bool isFieldsComplete_New();
+    bool isFieldsComplete_Open();
 private slots:
     void on_PButton_First_NewFile_clicked();
     void on_PButton_Open_Cancel_clicked();
@@ -70,6 +74,26 @@ private slots:
     void on_TButton_New_ChooseFile_clicked();
 
     void on_TButton_Open_ChooseFile_clicked();
+
+    void on_LineEdit_New_ConfirmPassword_textEdited(const QString &arg1);
+
+    void on_LineEdit_New_Password_textEdited(const QString &arg1);
+
+    void on_LineEdit_New_FilePath_textEdited(const QString &arg1);
+
+    void on_LineEdit_Open_Password_textEdited(const QString &arg1);
+
+    void on_LineEdit_Open_FilePath_textChanged(const QString &arg1);
+
+    void on_TButton_Open_ShowPassword_toggled(bool checked);
+
+    void on_TButton_New_ShowPassword_toggled(bool checked);
+
+    void on_TButton_Lock_ShowPassword_toggled(bool checked);
+
+    void on_actionLock_triggered();
+
+    void on_PButton_Lock_Unclock_clicked();
 
 protected:
     void closeEvent(QCloseEvent *);
