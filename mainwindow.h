@@ -67,6 +67,10 @@ private slots:
     void on_actionSaveDatabase_triggered();
     void on_actionEditRecord_triggered();
 
+    void on_TButton_New_ChooseFile_clicked();
+
+    void on_TButton_Open_ChooseFile_clicked();
+
 protected:
     void closeEvent(QCloseEvent *);
 };

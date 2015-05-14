@@ -15,6 +15,7 @@
 #include <QStandardPaths>
 #include <QSettings>
 #include <QMessageBox>
+#include <QFileDialog>
 
 /*! \~russian
  * \brief Метод для переключения страничной навигации
@@ -404,4 +405,22 @@ void MainWindow::on_actionEditRecord_triggered()
     /// \todo write code here
     /// edit record
     _existsChanges = true;
+}
+
+void MainWindow::on_TButton_New_ChooseFile_clicked()
+{
+    ui.LineEdit_New_FilePath->setText(
+                QFileDialog::getSaveFileName(this,
+                                             tr("Create new file"),
+                                             QStandardPaths::writableLocation( QStandardPaths::HomeLocation )
+                                             ) );
+}
+
+void MainWindow::on_TButton_Open_ChooseFile_clicked()
+{
+    ui.LineEdit_Open_FilePath->setText(
+                QFileDialog::getOpenFileName(this,
+                                             tr("Choose a file"),
+                                             QStandardPaths::writableLocation( QStandardPaths::HomeLocation )
+                                             ) );
 }
