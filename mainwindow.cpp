@@ -20,6 +20,11 @@
 namespace Options {
     const QString LAST_FILE_PATH("LastFilePath");
     const QString BUFFER_SIZE("ReadWriteBufferSize");
+    const QString PASSWORD_HASH_CYCLES("PasswordHashCycles");
+}
+
+namespace DefaultValues {
+    const int PASSWORD_HASH_CYCLES(3);
 }
 
 /*! \~russian
@@ -179,9 +184,16 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
     size_t bufferSize     = cfg.value( Options::BUFFER_SIZE, 51200).toUInt();
     QString achtungDbPath = getTmpDbPath();
     QString encDbPath     = ui.LineEdit_Open_FilePath->text();
-    QByteArray password   = QCryptographicHash::hash( ui.LineEdit_Open_Password->text().toUtf8(),
-                                                      QCryptographicHash::Md5 );
-    _passwordHash = password;
+    QByteArray password   = ui.LineEdit_Open_Password->text().toUtf8();
+    bool hashCyclessCastToIntSuccess = false;
+    int hashCycles = cfg.value( Options::PASSWORD_HASH_CYCLES,
+                                DefaultValues::PASSWORD_HASH_CYCLES ).toInt(&hashCyclessCastToIntSuccess);
+    if( (! hashCyclessCastToIntSuccess) || (hashCycles < 1) ){
+        hashCycles = DefaultValues::PASSWORD_HASH_CYCLES;
+    }
+    for(int i = 0; i < hashCycles; ++i){
+        password   = QCryptographicHash::hash( password, QCryptographicHash::Md5 );
+    }
     QByteArray salt       = ui.LineEdit_Open_Password->text().toUtf8().toHex();
 
     if( _dbFileProcessing ){
@@ -189,7 +201,11 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
         delete _dbFileProcessing;
     }
     _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
-    _dbFileProcessing->openEncryptFile();
+    if( ! _dbFileProcessing->openEncryptFile() ){
+        ui.Label_Open_Error->setText( tr("Cannot open encrypted file") );
+        return;
+    }
+    _passwordHash = password;
     connectToDatabase(achtungDbPath);
 
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
@@ -432,9 +448,15 @@ void MainWindow::on_actionDeleteRecord_triggered()
 void MainWindow::on_PButton_New_CreateDatabase_clicked()
 {
     QSettings cfg;
-    QByteArray password      = QCryptographicHash::hash( ui.LineEdit_New_Password->text().toUtf8(),
-                                                         QCryptographicHash::Md5 );
-    _passwordHash = password;
+    QByteArray password = ui.LineEdit_Open_Password->text().toUtf8();
+    bool hashCyclessCastToIntSuccess = false;
+    int hashCycles = cfg.value( Options::PASSWORD_HASH_CYCLES, DefaultValues::PASSWORD_HASH_CYCLES ).toInt(&hashCyclessCastToIntSuccess);
+    if( (! hashCyclessCastToIntSuccess) || (hashCycles < 1) ){
+        hashCycles = DefaultValues::PASSWORD_HASH_CYCLES;
+    }
+    for(int i = 0; i < hashCycles; ++i){
+        password   = QCryptographicHash::hash( password, QCryptographicHash::Md5 );
+    }
     QByteArray salt          = ui.LineEdit_New_Password->text().toUtf8().toHex();
     QString    achtungDbPath = getTmpDbPath();
     QString    encDbPath     = ui.LineEdit_New_FilePath->text();
@@ -446,6 +468,7 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
     }
     _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
     connectToDatabase( achtungDbPath );
+    _passwordHash = password;
     setMainTable();
 
 
@@ -510,30 +533,27 @@ void MainWindow::on_LineEdit_Open_FilePath_textChanged(const QString &)
 
 void MainWindow::on_TButton_Open_ShowPassword_toggled(bool checked)
 {
-    if( checked )
-        ui.LineEdit_Open_Password->setEchoMode( QLineEdit::Normal );
-    else
-        ui.LineEdit_Open_Password->setEchoMode( QLineEdit::Password );
+    QLineEdit::EchoMode mode;
+    mode = (checked)? QLineEdit::Normal : QLineEdit::Password;
+
+    ui.LineEdit_Open_Password->setEchoMode( mode );
 }
 
 void MainWindow::on_TButton_New_ShowPassword_toggled(bool checked)
 {
-    if( checked ){
-        ui.LineEdit_New_Password->setEchoMode( QLineEdit::Normal );
-        ui.LineEdit_New_ConfirmPassword->setEchoMode( QLineEdit::Normal );
-    } else {
-        ui.LineEdit_New_Password->setEchoMode( QLineEdit::Password );
-        ui.LineEdit_New_ConfirmPassword->setEchoMode( QLineEdit::Password );
-    }
+    QLineEdit::EchoMode mode;
+    mode = (checked)? QLineEdit::Normal : QLineEdit::Password;
+
+    ui.LineEdit_New_Password->setEchoMode( mode );
+    ui.LineEdit_New_ConfirmPassword->setEchoMode( mode );
 }
 
 void MainWindow::on_TButton_Lock_ShowPassword_toggled(bool checked)
 {
-    if( checked ){
-        ui.LineEdit_Lock_Password->setEchoMode( QLineEdit::Normal );
-    } else {
-        ui.LineEdit_Lock_Password->setEchoMode( QLineEdit::Password );
-    }
+    QLineEdit::EchoMode mode;
+    mode = (checked)? QLineEdit::Normal : QLineEdit::Password;
+
+    ui.LineEdit_Lock_Password->setEchoMode( mode );
 }
 
 void MainWindow::on_actionLock_triggered()
@@ -543,8 +563,16 @@ void MainWindow::on_actionLock_triggered()
 
 void MainWindow::on_PButton_Lock_Unclock_clicked()
 {
-    QByteArray password = QCryptographicHash::hash( ui.LineEdit_Lock_Password->text().toUtf8(),
-                                                    QCryptographicHash::Md5 );
+    QSettings cfg;
+    QByteArray password = ui.LineEdit_Lock_Password->text().toUtf8();
+    bool hashCyclessCastToIntSuccess = false;
+    int hashCycles = cfg.value( Options::PASSWORD_HASH_CYCLES, DefaultValues::PASSWORD_HASH_CYCLES ).toInt(&hashCyclessCastToIntSuccess);
+    if( (! hashCyclessCastToIntSuccess) || (hashCycles < 1) ){
+        hashCycles = DefaultValues::PASSWORD_HASH_CYCLES;
+    }
+    for(int i = 0; i < hashCycles; ++i){
+        password   = QCryptographicHash::hash( password, QCryptographicHash::Md5 );
+    }
     if( password == _passwordHash ){
         setPage( PageIndex::MAIN );
     }else{
