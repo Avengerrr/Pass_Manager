@@ -21,10 +21,13 @@ namespace Options {
     const QString LAST_FILE_PATH("LastFilePath");
     const QString BUFFER_SIZE("ReadWriteBufferSize");
     const QString PASSWORD_HASH_CYCLES("PasswordHashCycles");
+
+    const QString LANGUAGE("Language");
 }
 
 namespace DefaultValues {
-    const int PASSWORD_HASH_CYCLES(3);
+    const size_t BUFFER_SIZE(51200);
+    const int    PASSWORD_HASH_CYCLES(3);
 }
 
 /*! \~russian
@@ -177,45 +180,8 @@ void MainWindow::setMainTable()
  * \brief Обработчик клика на кнопку истинного открытия файла
  * Собственно берёт и дерзко его открывает!!!
  */
-void MainWindow::on_PButton_Open_OpenFile_clicked()
+void MainWindow::updateSectionsList()
 {
-    QSettings cfg;
-
-    size_t bufferSize     = cfg.value( Options::BUFFER_SIZE, 51200).toUInt();
-    QString achtungDbPath = getTmpDbPath();
-    QString encDbPath     = ui.LineEdit_Open_FilePath->text();
-    QByteArray password   = ui.LineEdit_Open_Password->text().toUtf8();
-    bool hashCyclessCastToIntSuccess = false;
-    int hashCycles = cfg.value( Options::PASSWORD_HASH_CYCLES,
-                                DefaultValues::PASSWORD_HASH_CYCLES ).toInt(&hashCyclessCastToIntSuccess);
-    if( (! hashCyclessCastToIntSuccess) || (hashCycles < 1) ){
-        hashCycles = DefaultValues::PASSWORD_HASH_CYCLES;
-    }
-    for(int i = 0; i < hashCycles; ++i){
-        password   = QCryptographicHash::hash( password, QCryptographicHash::Md5 );
-    }
-    QByteArray salt       = ui.LineEdit_Open_Password->text().toUtf8().toHex();
-
-    if( _dbFileProcessing ){
-        qWarning() << "Чёта ты не в тот район забрёл...";
-        delete _dbFileProcessing;
-    }
-    _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
-    if( ! _dbFileProcessing->openEncryptFile() ){
-        ui.Label_Open_Error->setText( tr("Cannot open encrypted file") );
-        return;
-    }
-    _passwordHash = password;
-    connectToDatabase(achtungDbPath);
-
-    cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
-
-    setPage( PageIndex::MAIN );
-
-    setMainTable();
-
-
-
     QString sql = "SELECT %1 FROM %2";
     sql = sql.arg(DataTable::Fields::PassGroup, DataTable::tableName);
     QSqlQuery query( sql );
@@ -228,6 +194,35 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
         ui.ComboBox_Main_Section->addItems( groups.toList() );
         ui.ComboBox_Edit_Group->addItems( groups.toList() );
     }
+}
+
+void MainWindow::on_PButton_Open_OpenFile_clicked()
+{
+    QSettings cfg;
+
+    size_t bufferSize     = cfg.value( Options::BUFFER_SIZE, 51200).toUInt();
+    QString achtungDbPath = getTmpDbPath();
+    QString encDbPath     = ui.LineEdit_Open_FilePath->text();
+    QByteArray password   = getPasswordHash( ui.LineEdit_Open_Password->text() );
+    QByteArray salt       = ui.LineEdit_Open_Password->text().toUtf8().toHex();
+
+    if( _dbFileProcessing ){
+        qWarning() << "Чёта ты не в тот район забрёл...";
+        delete _dbFileProcessing;
+    }
+    _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
+    if( ! _dbFileProcessing->openEncryptFile() ){
+        ui.Label_Open_Error->setText( tr("Cannot open encrypted file") );
+        return;
+    }
+
+    _passwordHash = password;
+    connectToDatabase(achtungDbPath);
+    setPage( PageIndex::MAIN );
+    setMainTable();
+    updateSectionsList();
+
+    cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
 }
 
 /*!
@@ -445,18 +440,26 @@ void MainWindow::on_actionDeleteRecord_triggered()
     _TableModel.submitAll();
 }
 
-void MainWindow::on_PButton_New_CreateDatabase_clicked()
+QByteArray MainWindow::getPasswordHash(const QString &password)
 {
     QSettings cfg;
-    QByteArray password = ui.LineEdit_Open_Password->text().toUtf8();
+    QByteArray passwordHash = password.toUtf8();
     bool hashCyclessCastToIntSuccess = false;
     int hashCycles = cfg.value( Options::PASSWORD_HASH_CYCLES, DefaultValues::PASSWORD_HASH_CYCLES ).toInt(&hashCyclessCastToIntSuccess);
     if( (! hashCyclessCastToIntSuccess) || (hashCycles < 1) ){
         hashCycles = DefaultValues::PASSWORD_HASH_CYCLES;
     }
     for(int i = 0; i < hashCycles; ++i){
-        password   = QCryptographicHash::hash( password, QCryptographicHash::Md5 );
+        passwordHash   = QCryptographicHash::hash( passwordHash, QCryptographicHash::Md5 );
     }
+
+    return passwordHash;
+}
+
+void MainWindow::on_PButton_New_CreateDatabase_clicked()
+{
+    QSettings cfg;
+    QByteArray password      = getPasswordHash( ui.LineEdit_New_Password->text() );
     QByteArray salt          = ui.LineEdit_New_Password->text().toUtf8().toHex();
     QString    achtungDbPath = getTmpDbPath();
     QString    encDbPath     = ui.LineEdit_New_FilePath->text();
@@ -470,9 +473,9 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
     connectToDatabase( achtungDbPath );
     _passwordHash = password;
     setMainTable();
-
-
     setPage( PageIndex::MAIN );
+
+    cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
 }
 
 void MainWindow::on_actionSaveDatabase_triggered()
@@ -563,16 +566,7 @@ void MainWindow::on_actionLock_triggered()
 
 void MainWindow::on_PButton_Lock_Unclock_clicked()
 {
-    QSettings cfg;
-    QByteArray password = ui.LineEdit_Lock_Password->text().toUtf8();
-    bool hashCyclessCastToIntSuccess = false;
-    int hashCycles = cfg.value( Options::PASSWORD_HASH_CYCLES, DefaultValues::PASSWORD_HASH_CYCLES ).toInt(&hashCyclessCastToIntSuccess);
-    if( (! hashCyclessCastToIntSuccess) || (hashCycles < 1) ){
-        hashCycles = DefaultValues::PASSWORD_HASH_CYCLES;
-    }
-    for(int i = 0; i < hashCycles; ++i){
-        password   = QCryptographicHash::hash( password, QCryptographicHash::Md5 );
-    }
+    QByteArray password = getPasswordHash( ui.LineEdit_Lock_Password->text() );
     if( password == _passwordHash ){
         setPage( PageIndex::MAIN );
     }else{
