@@ -52,6 +52,7 @@ public:
     bool isFieldsComplete_Open();
     void updateSectionsList();
     QByteArray getPasswordHash(const QString &password);
+    QByteArray getSaltForPassword(const QString &password);
 private slots:
     void on_PButton_First_NewFile_clicked();
     void on_PButton_Open_Cancel_clicked();
