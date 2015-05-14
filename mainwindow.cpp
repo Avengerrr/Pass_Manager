@@ -17,6 +17,19 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
+namespace Options {
+    const QString LAST_FILE_PATH("LastFilePath");
+    const QString BUFFER_SIZE("ReadWriteBufferSize");
+    const QString PASSWORD_HASH_CYCLES("PasswordHashCycles");
+
+    const QString LANGUAGE("Language");
+}
+
+namespace DefaultValues {
+    const size_t BUFFER_SIZE(51200);
+    const int    PASSWORD_HASH_CYCLES(3);
+}
+
 /*! \~russian
  * \brief Метод для переключения страничной навигации
  * \param index - индекс необходимой страницы из перечисления PageIndex
@@ -31,7 +44,8 @@ bool MainWindow::setPage(PageIndex::PageIndex index)
     }else
         if(    index == PageIndex::FIRST
                || index == PageIndex::OPEN_FILE
-               || index == PageIndex::NEW_FILE){
+               || index == PageIndex::NEW_FILE
+               || index == PageIndex::LOCK){
 
             ui.MainMenuBar->setVisible( false );
             ui.MainToolBar->setVisible( false );
@@ -48,8 +62,11 @@ QString MainWindow::getTmpDbPath()
 
 bool MainWindow::connectToDatabase(const QString &filePath)
 {
-    _db.open( filePath );
-    QuerysManager::createTables();
+    bool success = false;
+    success = _db.open( filePath );
+    success = success && QuerysManager::createTables();
+
+    return success;
 }
 
 /*!
@@ -117,7 +134,7 @@ void MainWindow::on_PButton_First_OpenFile_clicked()
 {
     setPage( PageIndex::OPEN_FILE );
     QSettings cfg;
-    ui.LineEdit_Open_FilePath->setText( cfg.value( "LastFile", "" ).toString() );
+    ui.LineEdit_Open_FilePath->setText( cfg.value( Options::LAST_FILE_PATH, "" ).toString() );
 }
 
 /*!
@@ -163,33 +180,8 @@ void MainWindow::setMainTable()
  * \brief Обработчик клика на кнопку истинного открытия файла
  * Собственно берёт и дерзко его открывает!!!
  */
-void MainWindow::on_PButton_Open_OpenFile_clicked()
+void MainWindow::updateSectionsList()
 {
-    QSettings cfg;
-
-    size_t bufferSize = 51200;
-    QString achtungDbPath = getTmpDbPath();
-    QString encDbPath = ui.LineEdit_Open_FilePath->text();
-    QByteArray password  = QCryptographicHash::hash( ui.LineEdit_Open_Password->text().toUtf8(),
-                                                     QCryptographicHash::Md5 );
-    QByteArray salt      = ui.LineEdit_Open_Password->text().toUtf8().toHex();
-
-    if( _dbFileProcessing ){
-        qWarning() << "Чёта ты не в тот район забрёл...";
-        delete _dbFileProcessing;
-    }
-    _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
-    _dbFileProcessing->openEncryptFile();
-    connectToDatabase(achtungDbPath);
-
-    cfg.setValue( "LastFile", encDbPath );
-
-    setPage( PageIndex::MAIN );
-
-    setMainTable();
-
-
-
     QString sql = "SELECT %1 FROM %2";
     sql = sql.arg(DataTable::Fields::PassGroup, DataTable::tableName);
     QSqlQuery query( sql );
@@ -202,6 +194,35 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
         ui.ComboBox_Main_Section->addItems( groups.toList() );
         ui.ComboBox_Edit_Group->addItems( groups.toList() );
     }
+}
+
+void MainWindow::on_PButton_Open_OpenFile_clicked()
+{
+    QSettings cfg;
+
+    size_t bufferSize     = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toUInt();
+    QString achtungDbPath = getTmpDbPath();
+    QString encDbPath     = ui.LineEdit_Open_FilePath->text();
+    QByteArray password   = getPasswordHash( ui.LineEdit_Open_Password->text() );
+    QByteArray salt       = getSaltForPassword( ui.LineEdit_Open_Password->text() );
+
+    if( _dbFileProcessing ){
+        qWarning() << "Чёта ты не в тот район забрёл...";
+        delete _dbFileProcessing;
+    }
+    _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
+    if( ! _dbFileProcessing->openEncryptFile() ){
+        ui.Label_Open_Error->setText( tr("Cannot open encrypted file") );
+        return;
+    }
+
+    _passwordHash = password;
+    connectToDatabase(achtungDbPath);
+    setPage( PageIndex::MAIN );
+    setMainTable();
+    updateSectionsList();
+
+    cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
 }
 
 /*!
@@ -311,6 +332,52 @@ bool MainWindow::hasSaveChanges()
     return (btn == QMessageBox::Yes);
 }
 
+bool MainWindow::isFieldsComplete_New()
+{
+    if( ui.LineEdit_New_FilePath->text().isEmpty() ){
+        ui.Label_New_Error->setText( tr("Enter a new file path") );
+        return false;
+    }
+
+    if( ui.LineEdit_New_Password->text() != ui.LineEdit_New_ConfirmPassword->text() ){
+        ui.Label_New_Error->setText( tr("Paswords is not identical") );
+        return false;
+    }
+
+    if(    ui.LineEdit_New_Password->text().isEmpty()
+        || ui.LineEdit_New_ConfirmPassword->text().isEmpty() ){
+        ui.Label_New_Error->setText( tr("Empty password is not allowed") );
+        return false;
+    }
+
+    ui.Label_New_Error->clear();
+    return true;
+}
+
+bool MainWindow::isFieldsComplete_Open()
+{
+    QString filePath = ui.LineEdit_Open_FilePath->text();
+    if( filePath.isEmpty() ){
+        ui.Label_Open_Error->setText( tr("Choose a file") );
+        return false;
+    }
+
+    if( ! QFile::exists( filePath )
+       || QFileInfo( filePath ).isDir() ){
+
+        ui.Label_Open_Error->setText( tr("Choosen file is not exists") );
+        return false;
+    }
+
+    if( ui.LineEdit_Open_Password->text().isEmpty() ){
+        ui.Label_Open_Error->setText( tr("Empty password is not allowed") );
+        return false;
+    }
+
+    ui.Label_Open_Error->clear();
+    return true;
+}
+
 /*!
  * \brief Метод обрабатывает клик на кнопку сохранения записи
  * заполняет объект данными и вызывает метод
@@ -373,14 +440,36 @@ void MainWindow::on_actionDeleteRecord_triggered()
     _TableModel.submitAll();
 }
 
+QByteArray MainWindow::getPasswordHash(const QString &password)
+{
+    QSettings cfg;
+    QByteArray passwordHash = password.toUtf8();
+    bool hashCyclessCastToIntSuccess = false;
+    int hashCycles = cfg.value( Options::PASSWORD_HASH_CYCLES, DefaultValues::PASSWORD_HASH_CYCLES ).toInt(&hashCyclessCastToIntSuccess);
+    if( (! hashCyclessCastToIntSuccess) || (hashCycles < 1) ){
+        hashCycles = DefaultValues::PASSWORD_HASH_CYCLES;
+    }
+    for(int i = 0; i < hashCycles; ++i){
+        passwordHash   = QCryptographicHash::hash( passwordHash, QCryptographicHash::Md5 );
+    }
+
+    return passwordHash;
+}
+
+QByteArray MainWindow::getSaltForPassword(const QString &password)
+{
+    QByteArray salt          = password.toUtf8().toHex();
+    return salt;
+}
+
 void MainWindow::on_PButton_New_CreateDatabase_clicked()
 {
-    QByteArray password      = QCryptographicHash::hash( ui.LineEdit_New_Password->text().toUtf8(),
-                                                         QCryptographicHash::Md5 );
-    QByteArray salt          = ui.LineEdit_New_Password->text().toUtf8().toHex();
+    QSettings cfg;
+    QByteArray password      = getPasswordHash( ui.LineEdit_New_Password->text() );
+    QByteArray salt          = getSaltForPassword( ui.LineEdit_New_Password->text() );
     QString    achtungDbPath = getTmpDbPath();
     QString    encDbPath     = ui.LineEdit_New_FilePath->text();
-    size_t     bufferSize    = 51200;
+    size_t     bufferSize    = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toUInt();
 
     if( _dbFileProcessing ){
         qWarning() << "Чёта ты не в тот район забрёл...";
@@ -388,10 +477,11 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
     }
     _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
     connectToDatabase( achtungDbPath );
+    _passwordHash = password;
     setMainTable();
-
-
     setPage( PageIndex::MAIN );
+
+    cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
 }
 
 void MainWindow::on_actionSaveDatabase_triggered()
@@ -423,4 +513,69 @@ void MainWindow::on_TButton_Open_ChooseFile_clicked()
                                              tr("Choose a file"),
                                              QStandardPaths::writableLocation( QStandardPaths::HomeLocation )
                                              ) );
+}
+
+void MainWindow::on_LineEdit_New_ConfirmPassword_textEdited(const QString &)
+{
+    ui.PButton_New_CreateDatabase->setEnabled( isFieldsComplete_New() );
+}
+
+void MainWindow::on_LineEdit_New_Password_textEdited(const QString &)
+{
+    ui.PButton_New_CreateDatabase->setEnabled( isFieldsComplete_New() );
+}
+
+void MainWindow::on_LineEdit_New_FilePath_textEdited(const QString &)
+{
+    ui.PButton_New_CreateDatabase->setEnabled( isFieldsComplete_New() );
+}
+
+void MainWindow::on_LineEdit_Open_Password_textEdited(const QString &)
+{
+    ui.PButton_Open_OpenFile->setEnabled( isFieldsComplete_Open() );
+}
+
+void MainWindow::on_LineEdit_Open_FilePath_textChanged(const QString &)
+{
+    ui.PButton_Open_OpenFile->setEnabled( isFieldsComplete_Open() );
+}
+
+void MainWindow::on_TButton_Open_ShowPassword_toggled(bool checked)
+{
+    QLineEdit::EchoMode mode;
+    mode = (checked)? QLineEdit::Normal : QLineEdit::Password;
+
+    ui.LineEdit_Open_Password->setEchoMode( mode );
+}
+
+void MainWindow::on_TButton_New_ShowPassword_toggled(bool checked)
+{
+    QLineEdit::EchoMode mode;
+    mode = (checked)? QLineEdit::Normal : QLineEdit::Password;
+
+    ui.LineEdit_New_Password->setEchoMode( mode );
+    ui.LineEdit_New_ConfirmPassword->setEchoMode( mode );
+}
+
+void MainWindow::on_TButton_Lock_ShowPassword_toggled(bool checked)
+{
+    QLineEdit::EchoMode mode;
+    mode = (checked)? QLineEdit::Normal : QLineEdit::Password;
+
+    ui.LineEdit_Lock_Password->setEchoMode( mode );
+}
+
+void MainWindow::on_actionLock_triggered()
+{
+    setPage( PageIndex::LOCK );
+}
+
+void MainWindow::on_PButton_Lock_Unclock_clicked()
+{
+    QByteArray password = getPasswordHash( ui.LineEdit_Lock_Password->text() );
+    if( password == _passwordHash ){
+        setPage( PageIndex::MAIN );
+    }else{
+        ui.Label_Lock_Error->setText( tr("Password is uncorrect") );
+    }
 }
