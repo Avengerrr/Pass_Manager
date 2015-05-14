@@ -204,7 +204,7 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
     QString achtungDbPath = getTmpDbPath();
     QString encDbPath     = ui.LineEdit_Open_FilePath->text();
     QByteArray password   = getPasswordHash( ui.LineEdit_Open_Password->text() );
-    QByteArray salt       = ui.LineEdit_Open_Password->text().toUtf8().toHex();
+    QByteArray salt       = getSaltForPassword( ui.LineEdit_Open_Password->text() );
 
     if( _dbFileProcessing ){
         qWarning() << "Чёта ты не в тот район забрёл...";
@@ -456,11 +456,17 @@ QByteArray MainWindow::getPasswordHash(const QString &password)
     return passwordHash;
 }
 
+QByteArray MainWindow::getSaltForPassword(const QString &password)
+{
+    QByteArray salt          = password.toUtf8().toHex();
+    return salt;
+}
+
 void MainWindow::on_PButton_New_CreateDatabase_clicked()
 {
     QSettings cfg;
     QByteArray password      = getPasswordHash( ui.LineEdit_New_Password->text() );
-    QByteArray salt          = ui.LineEdit_New_Password->text().toUtf8().toHex();
+    QByteArray salt          = getSaltForPassword( ui.LineEdit_New_Password->text() );
     QString    achtungDbPath = getTmpDbPath();
     QString    encDbPath     = ui.LineEdit_New_FilePath->text();
     size_t     bufferSize    = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toUInt();
