@@ -39,6 +39,13 @@ private:
     QString getTmpDbPath();
     bool connectToDatabase(const QString &filePath);
 
+    bool goPage( const PageIndex::PageIndex index );
+    bool goPage_FIRST();
+    bool goPage_NEW_FILE();
+    bool goPage_OPEN_FILE();
+    bool goPage_MAIN();
+    bool goPage_EDIT();
+    bool goPage_LOCK();
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -53,6 +60,11 @@ public:
     void updateSectionsList();
     QByteArray getPasswordHash(const QString &password);
     QByteArray getSaltForPassword(const QString &password);
+    void createEmptyFile(const QString &path);
+    void clearEditPageFields();
+    void loadCharGroupsUserSettings();
+    void saveCharGroupsUserSettings();
+    void clearFieldsOpenFilePage();
 private slots:
     void on_PButton_First_NewFile_clicked();
     void on_PButton_Open_Cancel_clicked();
@@ -73,32 +85,19 @@ private slots:
     void on_PButton_New_CreateDatabase_clicked();
     void on_actionSaveDatabase_triggered();
     void on_actionEditRecord_triggered();
-
     void on_TButton_New_ChooseFile_clicked();
-
     void on_TButton_Open_ChooseFile_clicked();
-
     void on_LineEdit_New_ConfirmPassword_textEdited(const QString &arg1);
-
     void on_LineEdit_New_Password_textEdited(const QString &arg1);
-
     void on_LineEdit_New_FilePath_textEdited(const QString &arg1);
-
     void on_LineEdit_Open_Password_textEdited(const QString &arg1);
-
     void on_LineEdit_Open_FilePath_textChanged(const QString &arg1);
-
     void on_TButton_Open_ShowPassword_toggled(bool checked);
-
     void on_TButton_New_ShowPassword_toggled(bool checked);
-
     void on_TButton_Lock_ShowPassword_toggled(bool checked);
-
     void on_actionLock_triggered();
-
     void on_PButton_Lock_Unclock_clicked();
-
-    void on_TreeView_Main_Category_clicked(const QModelIndex &index);
+    void on_TreeView_Main_Category_clicked(const QModelIndex &);
 
 protected:
     void closeEvent(QCloseEvent *);

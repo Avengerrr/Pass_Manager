@@ -17,17 +17,43 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
+/*
+    my.dbx -> read & decrypt -> write as SQLiteDB (achtung)
+    NewRecor   -> write  to SQLiteDB;
+    EditRecord <- read from SQLiteDB;
+    SQliteDB -> read & encrypt -> write as my.dbx
+// */
+
 namespace Options {
     const QString LAST_FILE_PATH("LastFilePath");
     const QString BUFFER_SIZE("ReadWriteBufferSize");
     const QString PASSWORD_HASH_CYCLES("PasswordHashCycles");
 
     const QString LANGUAGE("Language");
+
+    namespace CharGroups {
+        const QString GROUP_PREFIX("CharGroups/");
+        const QString UPPER(    CharGroups::GROUP_PREFIX+"UpperLettersState");
+        const QString LOWER(    CharGroups::GROUP_PREFIX+"LowerLettersState");
+        const QString SPECIAL(  CharGroups::GROUP_PREFIX+"SpecialLettersState");
+        const QString MINUS(    CharGroups::GROUP_PREFIX+"MinusLettersState");
+        const QString NUMBERS(  CharGroups::GROUP_PREFIX+"NumbersLettersState");
+        const QString UNDERLINE(CharGroups::GROUP_PREFIX+"UnderlineLettersState");
+    }
 }
 
 namespace DefaultValues {
     const int BUFFER_SIZE(51200);
     const int PASSWORD_HASH_CYCLES(3);
+
+    namespace CharGroups {
+        const bool UPPER    (true);
+        const bool LOWER    (true);
+        const bool SPECIAL  (true);
+        const bool MINUS    (true);
+        const bool NUMBERS  (true);
+        const bool UNDERLINE(true);
+    }
 }
 
 /*! \~russian
@@ -69,6 +95,80 @@ bool MainWindow::connectToDatabase(const QString &filePath)
     return success;
 }
 
+bool MainWindow::goPage(const PageIndex::PageIndex index)
+{
+    switch (index) {
+    case PageIndex::FIRST:
+        goPage_FIRST();
+        break;
+    case PageIndex::NEW_FILE:
+        goPage_NEW_FILE();
+        break;
+    case PageIndex::OPEN_FILE:
+        goPage_OPEN_FILE();
+        break;
+    case PageIndex::MAIN:
+        goPage_MAIN();
+        break;
+    case PageIndex::EDIT:
+        goPage_EDIT();
+        break;
+    case PageIndex::LOCK:
+        goPage_LOCK();
+        break;
+    default:
+        qWarning() << "PageIndex is not exitsts";
+        break;
+    }
+    return true;
+}
+
+bool MainWindow::goPage_FIRST()
+{
+    ui.MainMenuBar->setVisible( false );
+    ui.MainToolBar->setVisible( false );
+    return setPage( PageIndex::FIRST );
+}
+
+bool MainWindow::goPage_NEW_FILE()
+{
+    ui.MainMenuBar->setVisible( false );
+    ui.MainToolBar->setVisible( false );
+    return setPage( PageIndex::NEW_FILE );
+}
+
+bool MainWindow::goPage_OPEN_FILE()
+{
+    ui.MainMenuBar->setVisible( false );
+    ui.MainToolBar->setVisible( false );
+    QSettings cfg;
+    ui.LineEdit_Open_FilePath->setText( cfg.value( Options::LAST_FILE_PATH, "" ).toString() );
+    if( cfg.contains( Options::LAST_FILE_PATH ) )
+        ui.LineEdit_Open_Password->setFocus();
+    return setPage( PageIndex::OPEN_FILE );
+}
+
+bool MainWindow::goPage_MAIN()
+{
+    ui.MainMenuBar->setVisible( true );
+    ui.MainToolBar->setVisible( true );
+    return setPage( PageIndex::MAIN );
+}
+
+bool MainWindow::goPage_EDIT()
+{
+    ui.MainMenuBar->setVisible( true );
+    ui.MainToolBar->setVisible( true );
+    return setPage( PageIndex::EDIT );
+}
+
+bool MainWindow::goPage_LOCK()
+{
+    ui.MainMenuBar->setVisible( false );
+    ui.MainToolBar->setVisible( false );
+    return setPage( PageIndex::LOCK );
+}
+
 /*!
  * \brief Конструктор Lego
  * \param parent
@@ -80,9 +180,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui.splitter_2->setStretchFactor(0, 1);
     ui.splitter_2->setStretchFactor(1, 3);
 
-    setPage( PageIndex::FIRST );
+    QSettings cfg;
+    if( cfg.contains( Options::LAST_FILE_PATH ) ){
+        setPage( PageIndex::OPEN_FILE );
+        emit ui.actionOpenDatabase->triggered();
+    }else{
+        setPage( PageIndex::FIRST );
+    }
     ui.TreeView_Main_Category->setModel( &_modelGroupsList );
     ui.TableView_Main_Records->setModel( &_modelMainTable );
+
+
 }
 
 void MainWindow::closeEvent(QCloseEvent *){
@@ -120,7 +228,9 @@ void MainWindow::on_PButton_First_NewFile_clicked()
  */
 void MainWindow::on_PButton_Open_Cancel_clicked()
 {
-    setPage( PageIndex::FIRST );
+    goPage( PageIndex::FIRST );
+    QSettings cfg;
+    cfg.remove( Options::LAST_FILE_PATH );
 }
 
 /*!
@@ -129,7 +239,7 @@ void MainWindow::on_PButton_Open_Cancel_clicked()
  */
 void MainWindow::on_PButton_New_Cancel_clicked()
 {
-    setPage( PageIndex::FIRST );
+    goPage( PageIndex::FIRST );
 }
 
 /*!
@@ -138,9 +248,7 @@ void MainWindow::on_PButton_New_Cancel_clicked()
  */
 void MainWindow::on_PButton_First_OpenFile_clicked()
 {
-    setPage( PageIndex::OPEN_FILE );
-    QSettings cfg;
-    ui.LineEdit_Open_FilePath->setText( cfg.value( Options::LAST_FILE_PATH, "" ).toString() );
+    goPage( PageIndex::OPEN_FILE );
 }
 
 /*!
@@ -175,7 +283,7 @@ void MainWindow::setAdaptiveLastColumn()
  */
 void MainWindow::updateMainTable()
 {
-    QString group = ui.TreeView_Main_Category->currentIndex().data().toString();
+    QString group = ui.TreeView_Main_Category->currentIndex().data(Qt::DisplayRole).toString();
 
     QStringList fields;
     fields.append(DataTable::Fields::Resource);
@@ -205,11 +313,17 @@ void MainWindow::updateSectionsList()
     _modelGroupsList.setHeaderData(0, Qt::Horizontal, tr("Groups"), Qt::DisplayRole);
 }
 
+void MainWindow::clearFieldsOpenFilePage()
+{
+    ui.LineEdit_Open_FilePath->clear();
+    ui.LineEdit_Open_Password->clear();
+}
+
 void MainWindow::on_PButton_Open_OpenFile_clicked()
 {
     QSettings cfg;
 
-    int bufferSize     = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toInt();
+    int bufferSize        = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toInt();
     QString achtungDbPath = getTmpDbPath();
     QString encDbPath     = ui.LineEdit_Open_FilePath->text();
     QByteArray password   = getPasswordHash( ui.LineEdit_Open_Password->text() );
@@ -233,6 +347,7 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
 
 
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
+    clearFieldsOpenFilePage();
 }
 
 /*!
@@ -249,8 +364,21 @@ void MainWindow::on_actionExit_triggered()
  * Переключает страницу на страницу добавления/редактирования новой записи
  * устанавливает режим редактирования в false для _data
  */
+void MainWindow::loadCharGroupsUserSettings()
+{
+    QSettings cfg;
+    ui.CheckBox_Edit_Pas_ChType_Upper->setChecked(     cfg.value(Options::CharGroups::UPPER,     DefaultValues::CharGroups::UPPER    ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Lower->setChecked(     cfg.value(Options::CharGroups::LOWER,     DefaultValues::CharGroups::LOWER    ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Special->setChecked(   cfg.value(Options::CharGroups::SPECIAL,   DefaultValues::CharGroups::SPECIAL  ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Minus->setChecked(     cfg.value(Options::CharGroups::MINUS,     DefaultValues::CharGroups::MINUS    ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Numbers->setChecked(   cfg.value(Options::CharGroups::NUMBERS,   DefaultValues::CharGroups::NUMBERS  ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Underline->setChecked( cfg.value(Options::CharGroups::UNDERLINE, DefaultValues::CharGroups::UNDERLINE).toBool() );
+}
+
 void MainWindow::on_actionNewRecord_triggered()
 {
+    loadCharGroupsUserSettings();
+
     setPage( PageIndex::EDIT );
     _data.setEditMode(false);
     _existsChanges = true;
@@ -394,12 +522,38 @@ bool MainWindow::isFieldsComplete_Open()
  * Data::save() - для сохранения данных в БД
  * Переключает страницу на PageIndex::MAIN
  */
+void MainWindow::clearEditPageFields()
+{
+    QSettings cfg;
+    ui.LineEdit_Edit_Title->clear();
+    ui.LineEdit_Edit_Answer->clear();
+    ui.LineEdit_Edit_ConfirmPassword->clear();
+    ui.LineEdit_Edit_Login->clear();
+    ui.LineEdit_Edit_Password->clear();
+    ui.LineEdit_Edit_Phone->clear();
+    ui.LineEdit_Edit_Url->clear();
+    ui.PlainTextEdit_Edit_Comment->clear();
+}
+
+void MainWindow::saveCharGroupsUserSettings()
+{
+    QSettings cfg;
+    cfg.setValue(Options::CharGroups::UPPER     , ui.CheckBox_Edit_Pas_ChType_Upper->isChecked() );
+    cfg.setValue(Options::CharGroups::LOWER     , ui.CheckBox_Edit_Pas_ChType_Lower->isChecked() );
+    cfg.setValue(Options::CharGroups::SPECIAL   , ui.CheckBox_Edit_Pas_ChType_Special->isChecked() );
+    cfg.setValue(Options::CharGroups::MINUS     , ui.CheckBox_Edit_Pas_ChType_Minus->isChecked() );
+    cfg.setValue(Options::CharGroups::NUMBERS   , ui.CheckBox_Edit_Pas_ChType_Numbers->isChecked() );
+    cfg.setValue(Options::CharGroups::UNDERLINE , ui.CheckBox_Edit_Pas_ChType_Underline->isChecked() );
+}
+
 void MainWindow::on_PushButton_Edit_Save_clicked()
 {
     setDataFromUi();
-
     _data.save();
-//    _modelMainTable.select();
+
+    saveCharGroupsUserSettings();
+
+    clearEditPageFields();
     updateMainTable();
     updateSectionsList();
     setPage( PageIndex::MAIN );
@@ -412,6 +566,7 @@ void MainWindow::on_PushButton_Edit_Save_clicked()
 void MainWindow::on_PushButton_Edit_Cancel_clicked()
 {
     setPage( PageIndex::MAIN );
+    clearEditPageFields();
 }
 
 void MainWindow::on_actionCreateDatabase_triggered()
@@ -433,7 +588,7 @@ void MainWindow::on_actionOpenDatabase_triggered()
     }
     _db.remove();
     _existsChanges = false;
-    setPage( PageIndex::OPEN_FILE );
+    goPage( PageIndex::OPEN_FILE );
 }
 
 void MainWindow::on_actionDeleteRecord_triggered()
@@ -474,6 +629,14 @@ QByteArray MainWindow::getSaltForPassword(const QString &password)
     return salt;
 }
 
+void MainWindow::createEmptyFile(const QString &path)
+{
+    QFile f(path);
+    f.open( QIODevice::WriteOnly );
+    f.write(QByteArray());
+    f.close();
+}
+
 void MainWindow::on_PButton_New_CreateDatabase_clicked()
 {
     QSettings cfg;
@@ -488,8 +651,11 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
         delete _dbFileProcessing;
     }
     _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
+
+    createEmptyFile(encDbPath);
     connectToDatabase( achtungDbPath );
     _passwordHash = password;
+
     updateMainTable();
     setPage( PageIndex::MAIN );
 
@@ -592,7 +758,7 @@ void MainWindow::on_PButton_Lock_Unclock_clicked()
     }
 }
 
-void MainWindow::on_TreeView_Main_Category_clicked(const QModelIndex &index)
+void MainWindow::on_TreeView_Main_Category_clicked(const QModelIndex &)
 {
     updateMainTable();
 }
