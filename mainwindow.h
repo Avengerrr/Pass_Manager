@@ -27,8 +27,8 @@ private:
     bool              _existsChanges = false;
     ConnectionManager _db;
     Data              _data;
-    QSqlQueryModel    _QueryModel;
-    QSqlTableModel    _TableModel;
+    QSqlQueryModel    _modelMainTable;
+    QSqlQueryModel    _modelGroupsList;
     QSystemTrayIcon   _trayIcon;
     QByteArray        _passwordHash;
 
@@ -45,7 +45,7 @@ public:
 
     void HideColumns();
     void setAdaptiveLastColumn();
-    void setMainTable();
+    void updateMainTable();
     void setDataFromUi();
     bool hasSaveChanges();
     bool isFieldsComplete_New();
@@ -97,6 +97,8 @@ private slots:
     void on_actionLock_triggered();
 
     void on_PButton_Lock_Unclock_clicked();
+
+    void on_TreeView_Main_Category_clicked(const QModelIndex &index);
 
 protected:
     void closeEvent(QCloseEvent *);

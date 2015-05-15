@@ -211,7 +211,7 @@ double PasswordGenerator::quality(const QString &password)
     double logN = log( log( Nu ) / log( N ) );
     double quality = N + sqrt( 0.5 * Ns + Nr ) - sqrt( Nc ) * logN;
 
-    qDebug() << quality;
+//    qDebug() << quality; /// \debug
 
     return quality;
 }

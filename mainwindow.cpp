@@ -26,8 +26,8 @@ namespace Options {
 }
 
 namespace DefaultValues {
-    const size_t BUFFER_SIZE(51200);
-    const int    PASSWORD_HASH_CYCLES(3);
+    const int BUFFER_SIZE(51200);
+    const int PASSWORD_HASH_CYCLES(3);
 }
 
 /*! \~russian
@@ -77,7 +77,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
     ui.setupUi(this);
+    ui.splitter_2->setStretchFactor(0, 1);
+    ui.splitter_2->setStretchFactor(1, 3);
+
     setPage( PageIndex::FIRST );
+    ui.TreeView_Main_Category->setModel( &_modelGroupsList );
+    ui.TableView_Main_Records->setModel( &_modelMainTable );
 }
 
 void MainWindow::closeEvent(QCloseEvent *){
@@ -102,6 +107,7 @@ MainWindow::~MainWindow(){
  */
 void MainWindow::on_PButton_First_NewFile_clicked()
 {
+    /// \todo delete that
     _trayIcon.setIcon( QIcon( ":/images/logotip.png" ) );
     _trayIcon.show();
     _trayIcon.showMessage("Hello", "Welcome To PassMan");
@@ -142,12 +148,14 @@ void MainWindow::on_PButton_First_OpenFile_clicked()
  */
 void MainWindow::HideColumns()
 {
-    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::id) );
-    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::Resource) );
-    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::PassGroup) );
-    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::Description) );
-    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::CreateTime) );
-    ui.TableView_Main_Records->hideColumn( _TableModel.fieldIndex(DataTable::Fields::PassLifeTime) );
+//    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::id) );
+//    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::PassGroup) );
+//    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::Description) );
+//    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::CreateTime) );
+//    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::PassLifeTime) );
+//    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::Mail) );
+//    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::Phone) );
+//    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::Answer) );
 }
 
 /*!
@@ -165,14 +173,22 @@ void MainWindow::setAdaptiveLastColumn()
  * Скрывает ненужные колонки
  * Настраивает растяжение колонок
  */
-void MainWindow::setMainTable()
+void MainWindow::updateMainTable()
 {
-    _TableModel.setTable(DataTable::tableName);
-    _TableModel.select();
-    connect( &_TableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-             ui.TableView_Main_Records, SLOT(dataChanged(QModelIndex,QModelIndex,QVector<int>)) );
-    ui.TableView_Main_Records->setModel( &_TableModel );
-    HideColumns();
+    QString group = ui.TreeView_Main_Category->currentIndex().data().toString();
+
+    QStringList fields;
+    fields.append(DataTable::Fields::Resource);
+    fields.append(DataTable::Fields::Url);
+    fields.append(DataTable::Fields::Login);
+    fields.append(DataTable::Fields::Password);
+
+    QString sql("SELECT %1 FROM %3 WHERE %4='%5'");
+    sql = sql.arg( fields.join(", "),
+                   DataTable::tableName,
+                   DataTable::Fields::PassGroup,
+                   group );
+    _modelMainTable.setQuery( sql );
     setAdaptiveLastColumn();
 }
 
@@ -182,25 +198,18 @@ void MainWindow::setMainTable()
  */
 void MainWindow::updateSectionsList()
 {
-    QString sql = "SELECT %1 FROM %2";
-    sql = sql.arg(DataTable::Fields::PassGroup, DataTable::tableName);
-    QSqlQuery query( sql );
-    if( query.exec() ){
-        QSet<QString> groups;
-        while( query.next() ){
-            groups += query.value(DataTable::Fields::PassGroup).toString();
-            qApp->processEvents();
-        }
-        ui.ComboBox_Main_Section->addItems( groups.toList() );
-        ui.ComboBox_Edit_Group->addItems( groups.toList() );
-    }
+    QString sql("SELECT `%1` FROM %2 GROUP BY %1");
+    sql = sql.arg( DataTable::Fields::PassGroup, DataTable::tableName );
+    _modelGroupsList.setQuery( sql );
+
+    _modelGroupsList.setHeaderData(0, Qt::Horizontal, tr("Groups"), Qt::DisplayRole);
 }
 
 void MainWindow::on_PButton_Open_OpenFile_clicked()
 {
     QSettings cfg;
 
-    size_t bufferSize     = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toUInt();
+    int bufferSize     = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toInt();
     QString achtungDbPath = getTmpDbPath();
     QString encDbPath     = ui.LineEdit_Open_FilePath->text();
     QByteArray password   = getPasswordHash( ui.LineEdit_Open_Password->text() );
@@ -219,15 +228,16 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
     _passwordHash = password;
     connectToDatabase(achtungDbPath);
     setPage( PageIndex::MAIN );
-    setMainTable();
+    updateMainTable();
     updateSectionsList();
+
 
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
 }
 
 /*!
  * \brief Обработчик действия выход из приложения
- * Берёт и закрывает приложение, ни спросив них*я!
+ * Берёт и закрывает приложение, \todo не спросив них*я!
  */
 void MainWindow::on_actionExit_triggered()
 {
@@ -389,7 +399,9 @@ void MainWindow::on_PushButton_Edit_Save_clicked()
     setDataFromUi();
 
     _data.save();
-    _TableModel.select();
+//    _modelMainTable.select();
+    updateMainTable();
+    updateSectionsList();
     setPage( PageIndex::MAIN );
 }
 
@@ -430,14 +442,14 @@ void MainWindow::on_actionDeleteRecord_triggered()
     /// \warning Нихера не работает!!!
     //    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
     //    model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
-    QModelIndexList sel = ui.TableView_Main_Records->selectionModel()->selectedRows();
-    int first = sel.first().row();
-    int count = sel.last().row()
-            - sel.first().row();
+//    QModelIndexList sel = ui.TableView_Main_Records->selectionModel()->selectedRows();
+//    int first = sel.first().row();
+//    int count = sel.last().row()
+//            - sel.first().row();
 
 
-    _TableModel.removeRows(first, count);
-    _TableModel.submitAll();
+//    _modelMainTable.removeRows(first, count);
+//    _modelMainTable.submitAll();
 }
 
 QByteArray MainWindow::getPasswordHash(const QString &password)
@@ -469,7 +481,7 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
     QByteArray salt          = getSaltForPassword( ui.LineEdit_New_Password->text() );
     QString    achtungDbPath = getTmpDbPath();
     QString    encDbPath     = ui.LineEdit_New_FilePath->text();
-    size_t     bufferSize    = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toUInt();
+    int        bufferSize    = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toInt();
 
     if( _dbFileProcessing ){
         qWarning() << "Чёта ты не в тот район забрёл...";
@@ -478,7 +490,7 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
     _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
     connectToDatabase( achtungDbPath );
     _passwordHash = password;
-    setMainTable();
+    updateMainTable();
     setPage( PageIndex::MAIN );
 
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
@@ -578,4 +590,9 @@ void MainWindow::on_PButton_Lock_Unclock_clicked()
     }else{
         ui.Label_Lock_Error->setText( tr("Password is uncorrect") );
     }
+}
+
+void MainWindow::on_TreeView_Main_Category_clicked(const QModelIndex &index)
+{
+    updateMainTable();
 }
