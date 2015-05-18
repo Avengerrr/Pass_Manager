@@ -81,10 +81,20 @@ void ConnectionManager::close()
     return db.close();
 }
 
+/*!
+ * \brief Метод для удаляения файла базы данных
+ * \return Успех операции.
+ * Возвращает false и не удаляет файл если:
+ * - Соединение с базой не закрыто.
+ * - Файл не существует
+ * - Не удалось удалить файл
+ */
 bool ConnectionManager::remove()
 {
     QFile file( db.databaseName() );
-    return file.remove();
+    if( file.exists() && ( ! db.isOpen() ) )
+        return file.remove();
+    return false;
 }
 
 /*!

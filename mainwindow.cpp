@@ -24,6 +24,8 @@
     SQliteDB -> read & encrypt -> write as my.dbx
 // */
 
+const QString warningStyle("border: 1px solid #CC0033");
+
 namespace Options {
     const QString LAST_FILE_PATH("LastFilePath");
     const QString BUFFER_SIZE("ReadWriteBufferSize");
@@ -206,7 +208,6 @@ void MainWindow::closeEvent(QCloseEvent *){
  * \brief Деструктор Lego
  */
 MainWindow::~MainWindow(){
-    //    _db.close();
 }
 
 /*!
@@ -548,11 +549,53 @@ void MainWindow::saveCharGroupsUserSettings()
 
 void MainWindow::on_PushButton_Edit_Save_clicked()
 {
+    if( ui.ComboBox_Edit_Group->currentText().isEmpty() ){
+        ui.ComboBox_Edit_Group->setFocus();
+        ui.ComboBox_Edit_Group->setStyleSheet(warningStyle);
+        return;
+    }else{
+        ui.ComboBox_Edit_Group->setStyleSheet("");
+    }
+    if( ui.LineEdit_Edit_Title->text().isEmpty() ){
+        ui.LineEdit_Edit_Title->setFocus();
+        ui.LineEdit_Edit_Title->setStyleSheet(warningStyle);
+        return;
+    }else{
+        ui.LineEdit_Edit_Title->setStyleSheet("");
+    }
+    if( ui.LineEdit_Edit_Login->text().isEmpty() ){
+        ui.LineEdit_Edit_Login->setFocus();
+        ui.LineEdit_Edit_Login->setStyleSheet(warningStyle);
+        return;
+    }else{
+        ui.LineEdit_Edit_Login->setStyleSheet("");
+    }
+    if( ui.LineEdit_Edit_Password->text().isEmpty() ){
+        ui.LineEdit_Edit_Password->setFocus();
+        ui.LineEdit_Edit_Password->setStyleSheet(warningStyle);
+        return;
+    }else{
+        ui.LineEdit_Edit_Password->setStyleSheet("");
+    }
+    if( ui.LineEdit_Edit_Password->text() != ui.LineEdit_Edit_ConfirmPassword->text() ){
+        ui.LineEdit_Edit_Password->setStyleSheet(warningStyle);
+        ui.LineEdit_Edit_ConfirmPassword->setStyleSheet(warningStyle);
+        return;
+    }else{
+        ui.LineEdit_Edit_Password->setStyleSheet("");
+        ui.LineEdit_Edit_ConfirmPassword->setStyleSheet("");
+    }
+
+
+
+
+
     setDataFromUi();
     _data.save();
 
     saveCharGroupsUserSettings();
 
+//    isClearEditPageField();
     clearEditPageFields();
     updateMainTable();
     updateSectionsList();
@@ -761,4 +804,40 @@ void MainWindow::on_PButton_Lock_Unclock_clicked()
 void MainWindow::on_TreeView_Main_Category_clicked(const QModelIndex &)
 {
     updateMainTable();
+}
+
+void MainWindow::on_ComboBox_Edit_Group_currentTextChanged(const QString &text)
+{
+    if( text.isEmpty() ){
+        ui.ComboBox_Edit_Group->setStyleSheet(warningStyle);
+    }else{
+        ui.ComboBox_Edit_Group->setStyleSheet("");
+    }
+}
+
+void MainWindow::on_LineEdit_Edit_Title_editingFinished()
+{
+    if( ui.LineEdit_Edit_Title->text().isEmpty() ){
+        ui.LineEdit_Edit_Title->setStyleSheet(warningStyle);
+    }else{
+        ui.LineEdit_Edit_Title->setStyleSheet("");
+    }
+}
+
+void MainWindow::on_LineEdit_Edit_Login_editingFinished()
+{
+    if( ui.LineEdit_Edit_Login->text().isEmpty() ){
+        ui.LineEdit_Edit_Login->setStyleSheet(warningStyle);
+    }else{
+        ui.LineEdit_Edit_Login->setStyleSheet("");
+    }
+}
+
+void MainWindow::on_LineEdit_Edit_Password_editingFinished()
+{
+    if( ui.LineEdit_Edit_Password->text().isEmpty() ){
+        ui.LineEdit_Edit_Password->setStyleSheet(warningStyle);
+    }else{
+        ui.LineEdit_Edit_Password->setStyleSheet("");
+    }
 }
