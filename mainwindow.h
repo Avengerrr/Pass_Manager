@@ -98,6 +98,13 @@ private slots:
     void on_actionLock_triggered();
     void on_PButton_Lock_Unclock_clicked();
     void on_TreeView_Main_Category_clicked(const QModelIndex &);
+    void on_ComboBox_Edit_Group_currentTextChanged(const QString &text);
+
+    void on_LineEdit_Edit_Title_editingFinished();
+
+    void on_LineEdit_Edit_Login_editingFinished();
+
+    void on_LineEdit_Edit_Password_editingFinished();
 
 protected:
     void closeEvent(QCloseEvent *);
