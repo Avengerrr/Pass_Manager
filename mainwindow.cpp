@@ -382,7 +382,6 @@ void MainWindow::on_actionNewRecord_triggered()
 
     setPage( PageIndex::EDIT );
     _data.setEditMode(false);
-    _existsChanges = true;
 }
 
 /*!
@@ -525,7 +524,6 @@ bool MainWindow::isFieldsComplete_Open()
  */
 void MainWindow::clearEditPageFields()
 {
-    QSettings cfg;
     ui.LineEdit_Edit_Title->clear();
     ui.LineEdit_Edit_Answer->clear();
     ui.LineEdit_Edit_ConfirmPassword->clear();
@@ -534,6 +532,7 @@ void MainWindow::clearEditPageFields()
     ui.LineEdit_Edit_Phone->clear();
     ui.LineEdit_Edit_Url->clear();
     ui.PlainTextEdit_Edit_Comment->clear();
+    ui.ProgressBar_Edit_PasswordQuality->setValue(0);
 }
 
 void MainWindow::saveCharGroupsUserSettings()
@@ -547,36 +546,46 @@ void MainWindow::saveCharGroupsUserSettings()
     cfg.setValue(Options::CharGroups::UNDERLINE , ui.CheckBox_Edit_Pas_ChType_Underline->isChecked() );
 }
 
-void MainWindow::on_PushButton_Edit_Save_clicked()
+bool MainWindow::isClearEditPageFields()
 {
+    bool result = false;
     if( ui.ComboBox_Edit_Group->currentText().isEmpty() ){
         ui.ComboBox_Edit_Group->setFocus();
         ui.ComboBox_Edit_Group->setStyleSheet(warningStyle);
-        return;
+        result = true;
     }else{
         ui.ComboBox_Edit_Group->setStyleSheet("");
     }
     if( ui.LineEdit_Edit_Title->text().isEmpty() ){
         ui.LineEdit_Edit_Title->setFocus();
         ui.LineEdit_Edit_Title->setStyleSheet(warningStyle);
-        return;
+        result = true;
     }else{
         ui.LineEdit_Edit_Title->setStyleSheet("");
     }
     if( ui.LineEdit_Edit_Login->text().isEmpty() ){
         ui.LineEdit_Edit_Login->setFocus();
         ui.LineEdit_Edit_Login->setStyleSheet(warningStyle);
-        return;
+        result = true;
     }else{
         ui.LineEdit_Edit_Login->setStyleSheet("");
     }
     if( ui.LineEdit_Edit_Password->text().isEmpty() ){
         ui.LineEdit_Edit_Password->setFocus();
         ui.LineEdit_Edit_Password->setStyleSheet(warningStyle);
-        return;
+        result = true;
     }else{
         ui.LineEdit_Edit_Password->setStyleSheet("");
     }
+    return result;
+}
+
+void MainWindow::on_PushButton_Edit_Save_clicked()
+{
+    if( isClearEditPageFields() ){
+        return;
+    }
+
     if( ui.LineEdit_Edit_Password->text() != ui.LineEdit_Edit_ConfirmPassword->text() ){
         ui.LineEdit_Edit_Password->setStyleSheet(warningStyle);
         ui.LineEdit_Edit_ConfirmPassword->setStyleSheet(warningStyle);
@@ -586,20 +595,15 @@ void MainWindow::on_PushButton_Edit_Save_clicked()
         ui.LineEdit_Edit_ConfirmPassword->setStyleSheet("");
     }
 
-
-
-
-
     setDataFromUi();
     _data.save();
 
     saveCharGroupsUserSettings();
-
-//    isClearEditPageField();
     clearEditPageFields();
     updateMainTable();
     updateSectionsList();
     setPage( PageIndex::MAIN );
+    _existsChanges = true;
 }
 
 /*!
@@ -715,7 +719,7 @@ void MainWindow::on_actionEditRecord_triggered()
 {
     /// \todo write code here
     /// edit record
-    _existsChanges = true;
+//    _existsChanges = true;
 }
 
 void MainWindow::on_TButton_New_ChooseFile_clicked()
