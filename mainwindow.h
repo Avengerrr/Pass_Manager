@@ -65,6 +65,7 @@ public:
     void loadCharGroupsUserSettings();
     void saveCharGroupsUserSettings();
     void clearFieldsOpenFilePage();
+    bool isClearEditPageFields();
 private slots:
     void on_PButton_First_NewFile_clicked();
     void on_PButton_Open_Cancel_clicked();
