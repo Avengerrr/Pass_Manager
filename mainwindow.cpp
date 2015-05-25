@@ -30,6 +30,7 @@ namespace Options {
     const QString LAST_FILE_PATH("LastFilePath");
     const QString BUFFER_SIZE("ReadWriteBufferSize");
     const QString PASSWORD_HASH_CYCLES("PasswordHashCycles");
+    const QString AES_ENCRYPT_ROUNDS("AesEncryptRounds");
 
     const QString LANGUAGE("Language");
 
@@ -47,6 +48,7 @@ namespace Options {
 namespace DefaultValues {
     const int BUFFER_SIZE(51200);
     const int PASSWORD_HASH_CYCLES(3);
+    const int AES_ENCRYPT_ROUNDS(10000);
 
     namespace CharGroups {
         const bool UPPER    (true);
@@ -69,15 +71,16 @@ bool MainWindow::setPage(PageIndex::PageIndex index)
     if( index == PageIndex::MAIN ){
         ui.MainMenuBar->setVisible( true );
         ui.MainToolBar->setVisible( true );
-    }else
-        if(    index == PageIndex::FIRST
+    }else if(    index == PageIndex::FIRST
                || index == PageIndex::OPEN_FILE
                || index == PageIndex::NEW_FILE
                || index == PageIndex::LOCK){
 
-            ui.MainMenuBar->setVisible( false );
-            ui.MainToolBar->setVisible( false );
-        }
+        ui.MainMenuBar->setVisible( false );
+        ui.MainToolBar->setVisible( false );
+    } else if( index == PageIndex::EDIT ){
+        ui.DateTimeEdit_Edit_Pas_PassOutdate->setDateTime( QDateTime::currentDateTime().addMonths(1) );
+    }
     return true;
 }
 
@@ -95,6 +98,57 @@ bool MainWindow::connectToDatabase(const QString &filePath)
     success = success && QuerysManager::createTables();
 
     return success;
+}
+
+void MainWindow::setDataToInfoPanel(const Data &data)
+{
+    QDateTime create = QDateTime::fromMSecsSinceEpoch( data.createTime().toLongLong() );
+    QDateTime life   = QDateTime::fromMSecsSinceEpoch( data.passLifeTime().toLongLong() );
+
+    QString cssExpired;
+    if( life <= QDateTime::currentDateTime() ){
+        cssExpired = "color:red";
+    }
+
+    QString html,
+            htmlHeader,
+            htmlTable,
+            htmlFooter;
+    QString cssHeader;
+    cssHeader = "background-color: #888; color: #EEE; padding-left: 4px;";
+
+    htmlHeader = "<div style='"+ cssHeader +"'>"+ data.resource().toHtmlEscaped() +"</div>";
+
+    QString htmlTableRow1 = "<tr>"
+                              "<td width='50%'>"
+                                "<strong>" + tr("Group:")+ "</strong> " + data.group().toHtmlEscaped() +
+                              "</td>"
+                              "<td width='50%'>"
+                                "<strong>" + tr("Creation:")+ "</strong> " + create.toString("dd/mm/yyyy") +
+                              "</td>"
+                            "</tr>";
+    QString htmlTableRow2 = "<tr>"
+                              "<td>"
+                                "<strong>" + tr("Login:")+ "</strong> " + data.login().toHtmlEscaped() +
+                              "</td>"
+                              "<td>"
+                                "<strong>" + tr("Expiration:")+ "</strong> " + "<span style='"+ cssExpired +"'>" + life.toString("dd/mm/yyyy") + "</span>" +
+                              "</td>"
+                            "</tr>";
+    QString htmlTableRow3 = "<tr>"
+                              "<td>"
+                                "<strong>" + tr("URL:")+ "</strong> " + data.url().toHtmlEscaped() +
+                              "</td>"
+                              "<td>"
+                                "<strong>" + tr("Password:")+ "</strong> " + data.password().toHtmlEscaped() +
+                              "</td>"
+                            "</tr>";
+
+    htmlTable  = "<table>"+ htmlTableRow1 + htmlTableRow2 + htmlTableRow3 +"</table>";
+    htmlFooter = "<strong>"+tr("Comment:")+"</strong> "+ data.description();
+
+    html = htmlHeader + htmlTable + htmlFooter;
+    ui.Label_Main_RecordInfo->setText( html );
 }
 
 bool MainWindow::goPage(const PageIndex::PageIndex index)
@@ -257,7 +311,8 @@ void MainWindow::on_PButton_First_OpenFile_clicked()
  */
 void MainWindow::HideColumns()
 {
-//    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::id) );
+    const int id = 0;
+    ui.TableView_Main_Records->hideColumn( id );
 //    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::PassGroup) );
 //    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::Description) );
 //    ui.TableView_Main_Records->hideColumn( _modelMainTable.fieldIndex(DataTable::Fields::CreateTime) );
@@ -287,6 +342,7 @@ void MainWindow::updateMainTable()
     QString group = ui.TreeView_Main_Category->currentIndex().data(Qt::DisplayRole).toString();
 
     QStringList fields;
+    fields.append(DataTable::Fields::id);
     fields.append(DataTable::Fields::Resource);
     fields.append(DataTable::Fields::Url);
     fields.append(DataTable::Fields::Login);
@@ -333,10 +389,13 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
     if( _dbFileProcessing ){
         qWarning() << "Чёта ты не в тот район забрёл...";
         delete _dbFileProcessing;
+        _dbFileProcessing = nullptr;
     }
     _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
     if( ! _dbFileProcessing->openEncryptFile() ){
         ui.Label_Open_Error->setText( tr("Cannot open encrypted file") );
+        delete _dbFileProcessing;
+        _dbFileProcessing = nullptr;
         return;
     }
 
@@ -345,6 +404,7 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
     setPage( PageIndex::MAIN );
     updateMainTable();
     updateSectionsList();
+    HideColumns();
 
 
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
@@ -368,17 +428,19 @@ void MainWindow::on_actionExit_triggered()
 void MainWindow::loadCharGroupsUserSettings()
 {
     QSettings cfg;
-    ui.CheckBox_Edit_Pas_ChType_Upper->setChecked(     cfg.value(Options::CharGroups::UPPER,     DefaultValues::CharGroups::UPPER    ).toBool() );
-    ui.CheckBox_Edit_Pas_ChType_Lower->setChecked(     cfg.value(Options::CharGroups::LOWER,     DefaultValues::CharGroups::LOWER    ).toBool() );
-    ui.CheckBox_Edit_Pas_ChType_Special->setChecked(   cfg.value(Options::CharGroups::SPECIAL,   DefaultValues::CharGroups::SPECIAL  ).toBool() );
-    ui.CheckBox_Edit_Pas_ChType_Minus->setChecked(     cfg.value(Options::CharGroups::MINUS,     DefaultValues::CharGroups::MINUS    ).toBool() );
-    ui.CheckBox_Edit_Pas_ChType_Numbers->setChecked(   cfg.value(Options::CharGroups::NUMBERS,   DefaultValues::CharGroups::NUMBERS  ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Upper    ->setChecked( cfg.value(Options::CharGroups::UPPER,     DefaultValues::CharGroups::UPPER    ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Lower    ->setChecked( cfg.value(Options::CharGroups::LOWER,     DefaultValues::CharGroups::LOWER    ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Special  ->setChecked( cfg.value(Options::CharGroups::SPECIAL,   DefaultValues::CharGroups::SPECIAL  ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Minus    ->setChecked( cfg.value(Options::CharGroups::MINUS,     DefaultValues::CharGroups::MINUS    ).toBool() );
+    ui.CheckBox_Edit_Pas_ChType_Numbers  ->setChecked( cfg.value(Options::CharGroups::NUMBERS,   DefaultValues::CharGroups::NUMBERS  ).toBool() );
     ui.CheckBox_Edit_Pas_ChType_Underline->setChecked( cfg.value(Options::CharGroups::UNDERLINE, DefaultValues::CharGroups::UNDERLINE).toBool() );
 }
 
 void MainWindow::on_actionNewRecord_triggered()
 {
     loadCharGroupsUserSettings();
+
+    ui.ComboBox_Edit_Group->setModel( &_modelGroupsList );
 
     setPage( PageIndex::EDIT );
     _data.setEditMode(false);
@@ -533,6 +595,7 @@ void MainWindow::clearEditPageFields()
     ui.LineEdit_Edit_Url->clear();
     ui.PlainTextEdit_Edit_Comment->clear();
     ui.ProgressBar_Edit_PasswordQuality->setValue(0);
+    ui.DateTimeEdit_Edit_Pas_PassOutdate->setDate( QDate::currentDate() );
 }
 
 void MainWindow::saveCharGroupsUserSettings()
@@ -696,6 +759,7 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
     if( _dbFileProcessing ){
         qWarning() << "Чёта ты не в тот район забрёл...";
         delete _dbFileProcessing;
+        _dbFileProcessing = nullptr;
     }
     _dbFileProcessing = new DbFileProcessing(achtungDbPath, encDbPath, password, salt, bufferSize);
 
@@ -704,6 +768,7 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
     _passwordHash = password;
 
     updateMainTable();
+    HideColumns();
     setPage( PageIndex::MAIN );
 
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
@@ -844,4 +909,12 @@ void MainWindow::on_LineEdit_Edit_Password_editingFinished()
     }else{
         ui.LineEdit_Edit_Password->setStyleSheet("");
     }
+}
+
+void MainWindow::on_TableView_Main_Records_activated(const QModelIndex &index)
+{
+    QSqlRecord record = _modelMainTable.record( index.row() );
+    _data.load( record.value( DataTable::Fields::id ).toString() );
+
+    setDataToInfoPanel( _data );
 }

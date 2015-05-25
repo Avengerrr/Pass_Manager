@@ -16,7 +16,8 @@ namespace PageIndex{
         NEW_FILE  = 2,
         MAIN      = 3,
         EDIT      = 4,
-        LOCK      = 5
+        LOCK      = 5,
+        SETTINGS  = 6
     };
 }
 
@@ -38,6 +39,7 @@ private:
     bool setPage(PageIndex::PageIndex index);
     QString getTmpDbPath();
     bool connectToDatabase(const QString &filePath);
+    void setDataToInfoPanel( const Data &data );
 
     bool goPage( const PageIndex::PageIndex index );
     bool goPage_FIRST();
@@ -100,12 +102,11 @@ private slots:
     void on_PButton_Lock_Unclock_clicked();
     void on_TreeView_Main_Category_clicked(const QModelIndex &);
     void on_ComboBox_Edit_Group_currentTextChanged(const QString &text);
-
     void on_LineEdit_Edit_Title_editingFinished();
-
     void on_LineEdit_Edit_Login_editingFinished();
-
     void on_LineEdit_Edit_Password_editingFinished();
+
+    void on_TableView_Main_Records_activated(const QModelIndex &index);
 
 protected:
     void closeEvent(QCloseEvent *);

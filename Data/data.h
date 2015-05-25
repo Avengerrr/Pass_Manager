@@ -43,6 +43,7 @@ class Data
     bool update();
 public:
     bool save();
+    bool load(const QString &id);
 
     QString id() const;
     void setId(const QString &id);

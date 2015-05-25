@@ -201,6 +201,39 @@ bool Data::save()
     }
 }
 
+bool Data::load(const QString &id)
+{
+    QSqlQuery query;
+
+    query.prepare( QString("SELECT * FROM %1 WHERE id = :id"
+                           ).arg(DataTable::tableName) );
+
+    query.bindValue( ":id", id );
+
+    if( ! query.exec() ){
+        qCritical() << "Cannot select Data from database\n"
+                    << "SqlError: " << query.lastError();
+        return false;
+    }
+    query.first();
+
+    setId( query.value( DataTable::Fields::id ).toString() );
+    setAnswer( query.value( DataTable::Fields::Answer ).toString() );
+    setCreateTime( query.value( DataTable::Fields::CreateTime ).toString() );
+    setDescription( query.value( DataTable::Fields::Description ).toString() );
+    setGroup( query.value( DataTable::Fields::PassGroup ).toString() );
+    setLogin( query.value( DataTable::Fields::Login ).toString() );
+    setMail( query.value( DataTable::Fields::Mail ).toString() );
+    setPassLifeTime( query.value( DataTable::Fields::PassLifeTime ).toString() );
+    setPassword( query.value( DataTable::Fields::Password ).toString() );
+    setPhone( query.value( DataTable::Fields::Phone ).toString() );
+    setResource( query.value( DataTable::Fields::Resource ).toString() );
+    setUrl( query.value( DataTable::Fields::Url ).toString() );
+
+
+    return true;
+}
+
 QString Data::id() const
 {
     return _id;
