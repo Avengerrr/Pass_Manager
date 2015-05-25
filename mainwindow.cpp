@@ -16,6 +16,7 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QSqlError>
 
 /*
     my.dbx -> read & decrypt -> write as SQLiteDB (achtung)
@@ -703,18 +704,18 @@ void MainWindow::on_actionOpenDatabase_triggered()
 
 void MainWindow::on_actionDeleteRecord_triggered()
 {
-    /// \todo Поименовать поля
-    /// \warning Нихера не работает!!!
-    //    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
-    //    model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
-//    QModelIndexList sel = ui.TableView_Main_Records->selectionModel()->selectedRows();
-//    int first = sel.first().row();
-//    int count = sel.last().row()
-//            - sel.first().row();
+    QModelIndex index = ui.TableView_Main_Records->selectionModel()->currentIndex();
+    QString id = _modelMainTable.record(index.row()).value(DataTable::Fields::id).toString();
+    qDebug() << id;
 
-
-//    _modelMainTable.removeRows(first, count);
-//    _modelMainTable.submitAll();
+    QSqlQuery query;
+    query.prepare( QString("DELETE FROM %1 WHERE id = :id").arg(DataTable::tableName) );
+    query.bindValue( ":id", id );
+    if( ! query.exec() ){
+        qWarning() << query.lastError().text();
+    }
+    _existsChanges = true;
+    updateMainTable();
 }
 
 QByteArray MainWindow::getPasswordHash(const QString &password)
