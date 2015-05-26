@@ -105,8 +105,11 @@ private slots:
     void on_LineEdit_Edit_Title_editingFinished();
     void on_LineEdit_Edit_Login_editingFinished();
     void on_LineEdit_Edit_Password_editingFinished();
-
     void on_TableView_Main_Records_activated(const QModelIndex &index);
+    void on_actionCopyNameInClipboard_triggered();
+    void on_actionCopyPasswordInClipboard_triggered();
+
+    void on_TableView_Main_Records_clicked(const QModelIndex &index);
 
 protected:
     void closeEvent(QCloseEvent *);
