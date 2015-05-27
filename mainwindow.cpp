@@ -17,6 +17,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QSqlError>
+#include <QClipboard>
 
 /*
     my.dbx -> read & decrypt -> write as SQLiteDB (achtung)
@@ -24,6 +25,12 @@
     EditRecord <- read from SQLiteDB;
     SQliteDB -> read & encrypt -> write as my.dbx
 // */
+
+/// \todo Поиск
+/// \todo Редактирование
+/// \todo Настройки
+/// \todo Открытие недавних
+/// \todo ???
 
 const QString warningStyle("border: 1px solid #CC0033");
 
@@ -705,6 +712,8 @@ void MainWindow::on_actionOpenDatabase_triggered()
 void MainWindow::on_actionDeleteRecord_triggered()
 {
     QModelIndex index = ui.TableView_Main_Records->selectionModel()->currentIndex();
+    if( ! index.isValid() )
+        return;
     QString id = _modelMainTable.record(index.row()).value(DataTable::Fields::id).toString();
     qDebug() << id;
 
@@ -918,4 +927,37 @@ void MainWindow::on_TableView_Main_Records_activated(const QModelIndex &index)
     _data.load( record.value( DataTable::Fields::id ).toString() );
 
     setDataToInfoPanel( _data );
+}
+
+void MainWindow::on_actionCopyNameInClipboard_triggered()
+{
+    QModelIndex index = ui.TableView_Main_Records->selectionModel()->currentIndex();
+    if( ! index.isValid() )
+        return;
+    QString login = _modelMainTable.record(index.row()).value(DataTable::Fields::Login).toString();
+
+    QClipboard *pcb = QApplication::clipboard();
+    pcb->setText(login);
+}
+
+void MainWindow::on_actionCopyPasswordInClipboard_triggered()
+{
+    QModelIndex index = ui.TableView_Main_Records->selectionModel()->currentIndex();
+    if( ! index.isValid() )
+        return;
+    QString password = _modelMainTable.record(index.row()).value(DataTable::Fields::Password).toString();
+
+    QClipboard *pcb = QApplication::clipboard();
+    pcb->setText(password);
+}
+
+//void test(){
+//    const QPoint p(10,10);
+//    QMouseEvent* pe = new QMouseEvent(QEvent::MouseButtonPress,p,Qt::LeftButton,Qt::NoButton, Qt::NoModifier);
+//    QApplication::sendEvent(&txt, pe);
+//}
+
+void MainWindow::on_TableView_Main_Records_clicked(const QModelIndex &index)
+{
+    emit ui.TableView_Main_Records->activated(index);
 }
