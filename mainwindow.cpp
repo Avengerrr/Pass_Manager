@@ -516,7 +516,7 @@ void MainWindow::on_ToolButton_Edit_Toogle_Password_toggled(bool checked)
     }
 }
 
-void MainWindow::setDataFromUi()
+void MainWindow::getDataFromUi()
 {
     _data.setGroup( ui.ComboBox_Edit_Group->currentText() );
     _data.setResource( ui.LineEdit_Edit_Title->text() );
@@ -666,7 +666,7 @@ void MainWindow::on_PushButton_Edit_Save_clicked()
         ui.LineEdit_Edit_ConfirmPassword->setStyleSheet("");
     }
 
-    setDataFromUi();
+    getDataFromUi();
     _data.save();
 
     saveCharGroupsUserSettings();
@@ -683,6 +683,7 @@ void MainWindow::on_PushButton_Edit_Save_clicked()
  */
 void MainWindow::on_PushButton_Edit_Cancel_clicked()
 {
+    _data.setEditMode( false );
     setPage( PageIndex::MAIN );
     clearEditPageFields();
 }
@@ -790,11 +791,28 @@ void MainWindow::on_actionSaveDatabase_triggered()
     _existsChanges = false;
 }
 
+void MainWindow::setDataToUi()
+{
+    ui.ComboBox_Edit_Group->setCurrentText( _data.group() );
+    ui.LineEdit_Edit_Title->setText( _data.resource() );
+    ui.LineEdit_Edit_Url->setText( _data.url() );
+    ui.LineEdit_Edit_Login->setText( _data.login() );
+    ui.LineEdit_Edit_Password->setText( _data.password() );
+    ui.LineEdit_Edit_ConfirmPassword->setText( _data.password() );
+    ui.LineEdit_Edit_Answer->setText( _data.answer() );
+    ui.LineEdit_Edit_Phone->setText( _data.phone() );
+    ui.PlainTextEdit_Edit_Comment->setPlainText( _data.description() );
+}
+
 void MainWindow::on_actionEditRecord_triggered()
 {
-    /// \todo write code here
-    /// edit record
-//    _existsChanges = true;
+    QModelIndex index = ui.TableView_Main_Records->selectionModel()->currentIndex();
+    if( ! index.isValid() )
+        return;
+
+    setDataToUi();
+    _data.setEditMode( true );
+    setPage( PageIndex::EDIT );
 }
 
 void MainWindow::on_TButton_New_ChooseFile_clicked()

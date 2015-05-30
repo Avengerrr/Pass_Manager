@@ -163,13 +163,16 @@ bool Data::update()
 {
     QSqlQuery query;
 
-    query.prepare( QString("UPDATE %1 SET "
-                           "PassGroup = :PassGroup, Resource = :Resource, Url = :Url, Login = :Login,"
-                           "Password = :Password, Mail = :Mail, Phone = :Phone,"
-                           "Answer = :Answer, CreateTime = :CreateTime,"
-                           "PassLifeTime = :PassLifeTime, Description = :Description"
-                           "WHERE id = :id;"
-                           ).arg(DataTable::tableName) );
+    QString sql("UPDATE %1 SET "
+                " PassGroup = :PassGroup, Resource = :Resource, Url = :Url, Login = :Login,"
+                " Password = :Password, Mail = :Mail, Phone = :Phone,"
+                " Answer = :Answer, CreateTime = :CreateTime,"
+                " PassLifeTime = :PassLifeTime, Description = :Description"
+                " WHERE id = :id;"
+                );
+    sql = sql.arg(DataTable::tableName);
+
+    query.prepare( sql );
 
     query.bindValue( ":id", id() );
     query.bindValue( ":PassGroup", group() );
@@ -185,6 +188,8 @@ bool Data::update()
     query.bindValue( ":Description", description() );
 
     if( ! query.exec() ){
+        qDebug() << sql;
+        qDebug() << query.executedQuery();
         qCritical() << "Cannot update Data in database\n"
                     << "SqlError: " << query.lastError();
         return false;
