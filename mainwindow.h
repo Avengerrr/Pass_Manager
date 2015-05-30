@@ -8,6 +8,7 @@
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
 #include <QSystemTrayIcon>
+#include "recentdocuments.h"
 
 namespace PageIndex{
     enum PageIndex{
@@ -32,6 +33,7 @@ private:
     QSqlQueryModel    _modelGroupsList;
     QSystemTrayIcon   _trayIcon;
     QByteArray        _passwordHash;
+    RecentDocuments   _recentDocuments;
 
     DbFileProcessing *_dbFileProcessing = nullptr;
 

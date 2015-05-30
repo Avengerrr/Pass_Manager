@@ -18,6 +18,7 @@
 #include <QFileDialog>
 #include <QSqlError>
 #include <QClipboard>
+#include "recentdocuments.h"
 
 /*
     my.dbx -> read & decrypt -> write as SQLiteDB (achtung)
@@ -27,9 +28,8 @@
 // */
 
 /// \todo Поиск
-/// \todo Редактирование
 /// \todo Настройки
-/// \todo Открытие недавних
+/// \todo Открытие недавних +/-
 /// \todo ???
 
 const QString warningStyle("border: 1px solid #CC0033");
@@ -41,6 +41,8 @@ namespace Options {
     const QString AES_ENCRYPT_ROUNDS("AesEncryptRounds");
 
     const QString LANGUAGE("Language");
+
+    const QString RECENT_DOCUMENTS_LIST("RecentDocumentsList");
 
     namespace CharGroups {
         const QString GROUP_PREFIX("CharGroups/");
@@ -57,6 +59,8 @@ namespace DefaultValues {
     const int BUFFER_SIZE(51200);
     const int PASSWORD_HASH_CYCLES(3);
     const int AES_ENCRYPT_ROUNDS(10000);
+
+    const QStringList RECENT_DOCUMENTS_LIST;
 
     namespace CharGroups {
         const bool UPPER    (true);
@@ -181,7 +185,7 @@ bool MainWindow::goPage(const PageIndex::PageIndex index)
         goPage_LOCK();
         break;
     default:
-        qWarning() << "PageIndex is not exitsts";
+        qWarning() << "PageIndex is not exists";
         break;
     }
     return true;
@@ -254,10 +258,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui.TreeView_Main_Category->setModel( &_modelGroupsList );
     ui.TableView_Main_Records->setModel( &_modelMainTable );
 
-
+    // Load recent documents list
+    _recentDocuments.setRecendDocuments( cfg.value(Options::RECENT_DOCUMENTS_LIST, DefaultValues::RECENT_DOCUMENTS_LIST).toStringList() );
+    QMenu *recentDocuments = new QMenu("RecentDocumentsList", this);
+    QStringList recentDocList = _recentDocuments.getRecentDocuments();
+    foreach (QString doc, recentDocList) {
+        recentDocuments->addAction( doc );
+    }
+    ui.actionOpenRecentDatabase->setMenu( recentDocuments );
 }
 
 void MainWindow::closeEvent(QCloseEvent *){
+    QSettings cfg;
+    cfg.setValue(Options::RECENT_DOCUMENTS_LIST, _recentDocuments.getRecentDocuments() );
     _db.close();
     if( _existsChanges && hasSaveChanges() ){
         _dbFileProcessing->saveEncryptFile();
@@ -417,6 +430,7 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
 
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
     clearFieldsOpenFilePage();
+    _recentDocuments.addLastDocument( encDbPath );
 }
 
 /*!
@@ -425,6 +439,8 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
  */
 void MainWindow::on_actionExit_triggered()
 {
+    QSettings cfg;
+    cfg.setValue( Options::RECENT_DOCUMENTS_LIST, _recentDocuments.getRecentDocuments() );
     qApp->exit(0);
 }
 
@@ -783,6 +799,7 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
     setPage( PageIndex::MAIN );
 
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
+    _recentDocuments.addLastDocument( encDbPath );
 }
 
 void MainWindow::on_actionSaveDatabase_triggered()
