@@ -8,6 +8,7 @@
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
 #include <QSystemTrayIcon>
+#include "recentdocuments.h"
 
 namespace PageIndex{
     enum PageIndex{
@@ -32,6 +33,7 @@ private:
     QSqlQueryModel    _modelGroupsList;
     QSystemTrayIcon   _trayIcon;
     QByteArray        _passwordHash;
+    RecentDocuments   _recentDocuments;
 
     DbFileProcessing *_dbFileProcessing = nullptr;
 
@@ -55,7 +57,7 @@ public:
     void HideColumns();
     void setAdaptiveLastColumn();
     void updateMainTable();
-    void setDataFromUi();
+    void getDataFromUi();
     bool hasSaveChanges();
     bool isFieldsComplete_New();
     bool isFieldsComplete_Open();
@@ -68,6 +70,7 @@ public:
     void saveCharGroupsUserSettings();
     void clearFieldsOpenFilePage();
     bool isClearEditPageFields();
+    void setDataToUi();
 private slots:
     void on_PButton_First_NewFile_clicked();
     void on_PButton_Open_Cancel_clicked();
