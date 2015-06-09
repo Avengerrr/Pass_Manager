@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>690</width>
-    <height>626</height>
+    <width>900</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,7 @@
     <item>
      <widget class="QStackedWidget" name="StackedWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="Page_First">
        <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -235,44 +235,21 @@
              <item>
               <layout class="QHBoxLayout" name="HLay_Open_2">
                <item>
-                <widget class="QComboBox" name="ComboBox_Open_EncAlhorytm">
-                 <property name="minimumSize">
-                  <size>
-                   <width>84</width>
-                   <height>0</height>
-                  </size>
+                <widget class="QSpinBox" name="SpinBox_Open_sessionTimeOut">
+                 <property name="toolTip">
+                  <string>Session timeout</string>
                  </property>
-                 <item>
-                  <property name="text">
-                   <string notr="true">AES 256</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string notr="true">AES 192</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string notr="true">AES 128</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item>
-                <widget class="QTimeEdit" name="TimeEdit_Open_SessionTime">
-                 <property name="currentSection">
-                  <enum>QDateTimeEdit::NoSection</enum>
+                 <property name="suffix">
+                  <string> min</string>
                  </property>
-                 <property name="displayFormat">
-                  <string>MM:ss</string>
+                 <property name="minimum">
+                  <number>1</number>
                  </property>
-                 <property name="time">
-                  <time>
-                   <hour>0</hour>
-                   <minute>0</minute>
-                   <second>0</second>
-                  </time>
+                 <property name="maximum">
+                  <number>30</number>
+                 </property>
+                 <property name="value">
+                  <number>5</number>
                  </property>
                 </widget>
                </item>
@@ -469,25 +446,6 @@
              <item>
               <layout class="QHBoxLayout" name="HLay_New_2">
                <item>
-                <widget class="QComboBox" name="ComboBox_New_EncAlhorytm">
-                 <item>
-                  <property name="text">
-                   <string notr="true">AES 256</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string notr="true">AES 192</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string notr="true">AES 128</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item>
                 <spacer name="HSpacer_New_2">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -683,6 +641,9 @@
             </item>
             <item row="0" column="1">
              <widget class="QComboBox" name="ComboBox_Edit_Group">
+              <property name="toolTip">
+               <string>Groups</string>
+              </property>
               <property name="editable">
                <bool>true</bool>
               </property>
@@ -704,6 +665,12 @@
              </property>
              <item>
               <widget class="QLineEdit" name="LineEdit_Edit_Title">
+               <property name="toolTip">
+                <string>Title</string>
+               </property>
+               <property name="statusTip">
+                <string/>
+               </property>
                <property name="dragEnabled">
                 <bool>true</bool>
                </property>
@@ -717,6 +684,9 @@
              </item>
              <item>
               <widget class="QLineEdit" name="LineEdit_Edit_Url">
+               <property name="toolTip">
+                <string>URL</string>
+               </property>
                <property name="dragEnabled">
                 <bool>true</bool>
                </property>
@@ -730,6 +700,9 @@
              </item>
              <item>
               <widget class="QLineEdit" name="LineEdit_Edit_Login">
+               <property name="toolTip">
+                <string>Login</string>
+               </property>
                <property name="dragEnabled">
                 <bool>true</bool>
                </property>
@@ -745,6 +718,9 @@
               <layout class="QHBoxLayout" name="HLay_Edit_Password">
                <item>
                 <widget class="QLineEdit" name="LineEdit_Edit_Password">
+                 <property name="toolTip">
+                  <string>Password</string>
+                 </property>
                  <property name="echoMode">
                   <enum>QLineEdit::Password</enum>
                  </property>
@@ -777,6 +753,9 @@
              </item>
              <item>
               <widget class="QProgressBar" name="ProgressBar_Edit_PasswordQuality">
+               <property name="toolTip">
+                <string>Difficulties</string>
+               </property>
                <property name="value">
                 <number>0</number>
                </property>
@@ -784,12 +763,15 @@
                 <set>Qt::AlignCenter</set>
                </property>
                <property name="format">
-                <string>%v bit</string>
+                <string/>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLineEdit" name="LineEdit_Edit_ConfirmPassword">
+               <property name="toolTip">
+                <string>Confirm password</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -809,6 +791,9 @@
              </item>
              <item>
               <widget class="QLineEdit" name="LineEdit_Edit_Answer">
+               <property name="toolTip">
+                <string>Answer for secret question</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -861,6 +846,9 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Comment</string>
                </property>
                <property name="placeholderText">
                 <string>Comment</string>
@@ -1187,7 +1175,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>690</width>
+     <width>900</width>
      <height>26</height>
     </rect>
    </property>
@@ -1202,7 +1190,21 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuLanguage">
+    <property name="title">
+     <string>Language</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionHelp"/>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="MenuFile"/>
+   <addaction name="menuLanguage"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="MainToolBar">
    <property name="windowTitle">
@@ -1222,6 +1224,7 @@
    <addaction name="actionEditRecord"/>
    <addaction name="actionDeleteRecord"/>
    <addaction name="separator"/>
+   <addaction name="actionCopyUrl"/>
    <addaction name="actionCopyNameInClipboard"/>
    <addaction name="actionCopyPasswordInClipboard"/>
    <addaction name="separator"/>
@@ -1383,6 +1386,45 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionCopyUrl">
+   <property name="icon">
+    <iconset theme="www">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>CopyUrl</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy URL to clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="icon">
+    <iconset theme="help">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset theme="help-about">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

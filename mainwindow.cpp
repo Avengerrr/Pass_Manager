@@ -18,7 +18,10 @@
 #include <QFileDialog>
 #include <QSqlError>
 #include <QClipboard>
-#include "recentdocuments.h"
+#include <QDesktopServices>
+
+#include "aboutdialog.h"
+#include "helpdialog.h"
 
 /*
     my.dbx -> read & decrypt -> write as SQLiteDB (achtung)
@@ -83,6 +86,9 @@ bool MainWindow::setPage(PageIndex::PageIndex index)
     if( index == PageIndex::MAIN ){
         ui.MainMenuBar->setVisible( true );
         ui.MainToolBar->setVisible( true );
+        ui.StatusBar->setVisible(   true );
+        int time = ui.SpinBox_Open_sessionTimeOut->value();
+        QTimer::singleShot(time*60*1000, this, SLOT(sessionTimeout()) );
     }else if(    index == PageIndex::FIRST
                || index == PageIndex::OPEN_FILE
                || index == PageIndex::NEW_FILE
@@ -90,6 +96,7 @@ bool MainWindow::setPage(PageIndex::PageIndex index)
 
         ui.MainMenuBar->setVisible( false );
         ui.MainToolBar->setVisible( false );
+        ui.StatusBar->setVisible(   false );
     } else if( index == PageIndex::EDIT ){
         ui.DateTimeEdit_Edit_Pas_PassOutdate->setDateTime( QDateTime::currentDateTime().addMonths(1) );
     }
@@ -266,6 +273,8 @@ MainWindow::MainWindow(QWidget *parent) :
         recentDocuments->addAction( doc );
     }
     ui.actionOpenRecentDatabase->setMenu( recentDocuments );
+
+    ui.StatusBar->addWidget( &_statusBar_countRecords );
 }
 
 void MainWindow::closeEvent(QCloseEvent *){
@@ -397,6 +406,25 @@ void MainWindow::clearFieldsOpenFilePage()
     ui.LineEdit_Open_Password->clear();
 }
 
+QString MainWindow::countRecords()
+{
+    QSqlQuery query;
+    QString sqlCount("SELECT COUNT(*) AS rCount FROM %1");
+    sqlCount = sqlCount.arg(DataTable::tableName);
+    if( ! query.exec(sqlCount) ){
+        qCritical() << "Cannot counted records.";
+    }
+    query.first();
+    QString recCount = query.value("rCount").toString();
+
+    return recCount;
+}
+
+void MainWindow::sessionTimeout()
+{
+    emit ui.actionLock->triggered();
+}
+
 void MainWindow::on_PButton_Open_OpenFile_clicked()
 {
     QSettings cfg;
@@ -431,6 +459,10 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
     clearFieldsOpenFilePage();
     _recentDocuments.addLastDocument( encDbPath );
+
+
+    QString recCount = countRecords();
+    _statusBar_countRecords.setText( tr("Record count: ") + recCount );
 }
 
 /*!
@@ -691,6 +723,9 @@ void MainWindow::on_PushButton_Edit_Save_clicked()
     updateSectionsList();
     setPage( PageIndex::MAIN );
     _existsChanges = true;
+
+    QString recCount = countRecords();
+    _statusBar_countRecords.setText( tr("Record count: ") + recCount );
 }
 
 /*!
@@ -742,6 +777,9 @@ void MainWindow::on_actionDeleteRecord_triggered()
     }
     _existsChanges = true;
     updateMainTable();
+
+    QString recCount = countRecords();
+    _statusBar_countRecords.setText( tr("Record count: ") + recCount );
 }
 
 QByteArray MainWindow::getPasswordHash(const QString &password)
@@ -910,6 +948,8 @@ void MainWindow::on_PButton_Lock_Unclock_clicked()
     QByteArray password = getPasswordHash( ui.LineEdit_Lock_Password->text() );
     if( password == _passwordHash ){
         setPage( PageIndex::MAIN );
+        ui.Label_Lock_Error->setText("");
+        ui.LineEdit_Lock_Password->clear();
     }else{
         ui.Label_Lock_Error->setText( tr("Password is uncorrect") );
     }
@@ -995,4 +1035,44 @@ void MainWindow::on_actionCopyPasswordInClipboard_triggered()
 void MainWindow::on_TableView_Main_Records_clicked(const QModelIndex &index)
 {
     emit ui.TableView_Main_Records->activated(index);
+}
+
+void MainWindow::on_actionCopyUrl_triggered()
+{
+    QModelIndex index = ui.TableView_Main_Records->selectionModel()->currentIndex();
+    if( ! index.isValid() )
+        return;
+    QString url = _modelMainTable.record(index.row()).value(DataTable::Fields::Url).toString();
+
+//    QClipboard *pcb = QApplication::clipboard();
+//    pcb->setText(url);
+
+    QDesktopServices::openUrl( QUrl(url) );
+}
+
+void MainWindow::on_LineEdit_Main_Search_textEdited(const QString &searchText)
+{
+    QString group = ui.TreeView_Main_Category->currentIndex().data(Qt::DisplayRole).toString();
+
+    QStringList fields;
+    fields.append(DataTable::Fields::id);
+    fields.append(DataTable::Fields::Resource);
+    fields.append(DataTable::Fields::Url);
+    fields.append(DataTable::Fields::Login);
+    fields.append(DataTable::Fields::Password);
+
+    QString sql("SELECT %1 FROM %2 WHERE %3='%4' AND %5 LIKE '\%" + searchText + "\%'");
+    sql = sql.arg( fields.join(", "),
+                   DataTable::tableName,
+                   DataTable::Fields::PassGroup,
+                   group,
+                   DataTable::Fields::Resource);
+    _modelMainTable.setQuery( sql );
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    auto dialog = new AboutDialog(this);
+    dialog->setModal(true);
+    dialog->exec();
 }

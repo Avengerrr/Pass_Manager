@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HelpDialog</class>
+ <widget class="QDialog" name="HelpDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>517</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Password Manager Help</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="Label_HelpDescription">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;     
+     &lt;head&gt;     
+	 &lt;script type=&quot;text/javascript&quot; src=&quot;include.js&quot;&gt;&lt;/script&gt;
+     &lt;/head&gt;     
+ &lt;body id=&quot;bodyframe&quot;&gt;
+      &lt;p&gt;
+		Ìîäèôèêàöèÿ äëÿ STALKER Ò× 1.0004 &lt;br&gt;
+		Ò×/ÇÏ - &lt;span class=&quot;green&quot;&gt;Ðàáîòàåò&lt;/span&gt;, ×Í - &lt;span class=&quot;red&quot;&gt;Íåèçâåñòíî&lt;/span&gt;.&lt;br&gt;
+
+      Ïîäíèìàþùèåñÿ è\èëè çàêàí÷èâàþùèåñÿ áîëòû.Ôèíàëüíàÿ âåðñèÿ. &lt;/p&gt;
+&lt;p&gt; Íàñòðîéêà: â ôàéëå &lt;span class=&quot;dir&quot;&gt;bolt_mod.script&lt;/span&gt;
+
+      &lt;div class=&quot;code&quot;&gt;local infinity = false -- true - òîëüêî ïîäáèðàþòñÿ,false - ïîäáèðàþòñÿ è çàêàí÷èâàþòñÿ&lt;/div&gt; &lt;/p&gt;
+&lt;p&gt; Åñëè ïàòðîíû íà õóäå â íåñòàíäàðòíîì ìåñòå,òî êîîðäèíàòû ñ÷åò÷èêà áîëòîâ ìîæíî èçìåíèòü â ñòðîêå
+
+      &lt;div class=&quot;code&quot;&gt;st:Init(1024-160,768-65,110,50)&lt;/div&gt; &lt;/p&gt;
+&lt;p&gt; Â ýòîé âåðñèè êàðäèíàëüíî èçìåíåíà ñõåìà ïîèìêè áðîøåííîãî áîëòà.
+&lt;br&gt;
+      Ïàðàìåòð &lt;span class=&quot;descr&quot;&gt;destroy_time&lt;/span&gt; â êîíôèãå áîëòîâ ìîæåò áûòü ëþáîé.
+&lt;br&gt;
+      Òåïåðü íåò óáîðùèêà áîëòîâ,ò.ê. áîëòû íå ôåéêîâûå,à îáû÷íûå,êîòîðûå êèäàåò ÃÃ.Èõ îáúåêò íå èìååò ñåðâåðíîé ÷àñòè, è ïîýòîìó îíè èñ÷åçàþò ïðè âûõîäå ñ óðîâíÿ àâòîìàòè÷åñêè.Ïî ýòîé æå ïðè÷èíå âîçíèêàåò æåëòîå ïðåäóïðåæäåíèå â êîíñîëè òèïà
+&lt;br&gt;
+      ~ ERROR: can't detach independant object. entity[bolt:21248], parent[single_player:0], section[bolt]
+&lt;br&gt;
+      Ýòî íå êðèòè÷íî. &lt;/p&gt;
+&lt;/body&gt;  
+&lt;/html&gt; </string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>HelpDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>HelpDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
