@@ -33,7 +33,9 @@ SOURCES += main.cpp\
     passwordgenerator.cpp \
     Data/data.cpp \
     dbfileprocessing.cpp \
-    recentdocuments.cpp
+    recentdocuments.cpp \
+    aboutdialog.cpp \
+    helpdialog.cpp
 
 HEADERS  += mainwindow.h \
     cryptfiledevice.h \
@@ -44,9 +46,17 @@ HEADERS  += mainwindow.h \
     passwordgenerator.h \
     Data/data.h \
     dbfileprocessing.h \
-    recentdocuments.h
+    recentdocuments.h \
+    aboutdialog.h \
+    helpdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    aboutdialog.ui \
+    helpdialog.ui
 
 RESOURCES += \
     resources.qrc
+
+TRANSLATIONS += \
+    l10n/PassMan_ru.ts \
+    l10n/PassMan_en.ts

@@ -8,6 +8,7 @@
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
 #include <QSystemTrayIcon>
+#include <QTimer>
 #include "recentdocuments.h"
 
 namespace PageIndex{
@@ -34,6 +35,8 @@ private:
     QSystemTrayIcon   _trayIcon;
     QByteArray        _passwordHash;
     RecentDocuments   _recentDocuments;
+    QLabel            _statusBar_countRecords;
+    QTimer            _sessionTimer;
 
     DbFileProcessing *_dbFileProcessing = nullptr;
 
@@ -71,12 +74,13 @@ public:
     void clearFieldsOpenFilePage();
     bool isClearEditPageFields();
     void setDataToUi();
+    QString countRecords();
 private slots:
+    void sessionTimeout();
     void on_PButton_First_NewFile_clicked();
     void on_PButton_Open_Cancel_clicked();
     void on_PButton_New_Cancel_clicked();
     void on_PButton_First_OpenFile_clicked();
-
     void on_PButton_Open_OpenFile_clicked();
     void on_actionExit_triggered();
     void on_actionNewRecord_triggered();
@@ -111,8 +115,13 @@ private slots:
     void on_TableView_Main_Records_activated(const QModelIndex &index);
     void on_actionCopyNameInClipboard_triggered();
     void on_actionCopyPasswordInClipboard_triggered();
-
     void on_TableView_Main_Records_clicked(const QModelIndex &index);
+    void on_actionCopyUrl_triggered();
+    void on_LineEdit_Main_Search_textEdited(const QString &searchText);
+
+    void on_actionAbout_triggered();
+
+    void on_actionHelp_triggered();
 
 protected:
     void closeEvent(QCloseEvent *);
