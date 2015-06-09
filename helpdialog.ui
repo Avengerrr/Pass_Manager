@@ -6,51 +6,143 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>517</height>
+    <width>771</width>
+    <height>454</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>16777215</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Password Manager Help</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="Label_HelpDescription">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
      </property>
-     <property name="text">
-      <string>&lt;html&gt;     
-     &lt;head&gt;     
-	 &lt;script type=&quot;text/javascript&quot; src=&quot;include.js&quot;&gt;&lt;/script&gt;
-     &lt;/head&gt;     
- &lt;body id=&quot;bodyframe&quot;&gt;
-      &lt;p&gt;
-		Ìîäèôèêàöèÿ äëÿ STALKER Ò× 1.0004 &lt;br&gt;
-		Ò×/ÇÏ - &lt;span class=&quot;green&quot;&gt;Ðàáîòàåò&lt;/span&gt;, ×Í - &lt;span class=&quot;red&quot;&gt;Íåèçâåñòíî&lt;/span&gt;.&lt;br&gt;
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>737</width>
+        <height>1476</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="styleSheet">
+          <string notr="true">li { list-style-type: none; } /* Убираем исходную нумерацию у списка */
+   		ol { counter-reset: list1; } /* Инициируем счетчик */
+   		ol li:before {
+	    	counter-increment: list1; /* Увеличиваем значение счетчика */
+	    	content: counter(list1) &quot;. &quot;; /* Выводим число */
+   		}
+   		ol ol { counter-reset: list2; } /* Инициируем счетчик вложенного списка */
+   		ol ol li:before {
+	    	counter-increment: list2; /* Увеличиваем значение счетчика вложенного списка */
+	    	content: counter(list1) &quot;.&quot; counter(list2) &quot;. &quot;; /* Выводим число */
+   		}
+   		.numeric { counter-reset: listh1; } /* Инициируем счетчик */
+   		.numeric h3:before {
+	    	counter-increment: listh1; /* Увеличиваем значение счетчика */
+	    	content: counter(listh1) &quot;. &quot;; /* Выводим число */
+   		}
+   		.numeric .numeric2 { counter-reset: listh2; } /* Инициируем счетчик вложенного списка */
+   		.numeric .numeric2 h4:before {
+	    	counter-increment: listh2; /* Увеличиваем значение счетчика вложенного списка */
+	    	content: counter(listh1) &quot;.&quot; counter(listh2) &quot;. &quot;; /* Выводим число */
+   		}</string>
+         </property>
+         <property name="text">
+          <string>&lt;!DOCTYPE html&gt; 
+&lt;html&gt;
+&lt;head&gt;
+	&lt;meta charset='utf-8'&gt;
+	&lt;title&gt;Help&lt;/title&gt;
+	&lt;style&gt;
+   		li { list-style-type: none; } /* Убираем исходную нумерацию у списка */
+   		ol { counter-reset: list1; } /* Инициируем счетчик */
+   		ol li:before {
+	    	counter-increment: list1; /* Увеличиваем значение счетчика */
+	    	content: counter(list1) &quot;. &quot;; /* Выводим число */
+   		}
+   		ol ol { counter-reset: list2; } /* Инициируем счетчик вложенного списка */
+   		ol ol li:before {
+	    	counter-increment: list2; /* Увеличиваем значение счетчика вложенного списка */
+	    	content: counter(list1) &quot;.&quot; counter(list2) &quot;. &quot;; /* Выводим число */
+   		}
+   		.numeric { counter-reset: listh1; } /* Инициируем счетчик */
+   		.numeric h3:before {
+	    	counter-increment: listh1; /* Увеличиваем значение счетчика */
+	    	content: counter(listh1) &quot;. &quot;; /* Выводим число */
+   		}
+   		.numeric .numeric2 { counter-reset: listh2; } /* Инициируем счетчик вложенного списка */
+   		.numeric .numeric2 h4:before {
+	    	counter-increment: listh2; /* Увеличиваем значение счетчика вложенного списка */
+	    	content: counter(listh1) &quot;.&quot; counter(listh2) &quot;. &quot;; /* Выводим число */
+   		}
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body background=&quot;img/Paper.jpg&quot; font=&quot;Georgia&quot;&gt;
+	&lt;h3&gt;Справочник пользователя&lt;/h3&gt;
+		&lt;hr&gt;
+		&lt;h3&gt;Содержание:&lt;/h3&gt;
+		&lt;ol&gt;
+	  		&lt;li&gt;Интерфейс приложения&lt;/li&gt;
+	  		&lt;ol&gt;
+	    		&lt;li&gt;Главное окно&lt;/li&gt;
+	    		&lt;li&gt;Окно просмотра записей&lt;/li&gt;
+	    		&lt;li&gt;Окно добавления записи&lt;/li&gt;
+	    		&lt;li&gt;Окно блокировки&lt;/li&gt;
+	  		&lt;/ol&gt;
+	  		&lt;li&gt;Дополнительная информация&lt;/li&gt;
+	  		&lt;ol&gt;
+	    		&lt;li&gt;Горячие клавиши&lt;/li&gt;
+	    		&lt;li&gt;Служба поддержки&lt;/li&gt;
+	    		&lt;li&gt;Исходный код&lt;/li&gt;
+	  		&lt;/ol&gt;
+		&lt;/ol&gt;
 
-      Ïîäíèìàþùèåñÿ è\èëè çàêàí÷èâàþùèåñÿ áîëòû.Ôèíàëüíàÿ âåðñèÿ. &lt;/p&gt;
-&lt;p&gt; Íàñòðîéêà: â ôàéëå &lt;span class=&quot;dir&quot;&gt;bolt_mod.script&lt;/span&gt;
+		&lt;hr&gt;
+		&lt;div class=&quot;numeric&quot;&gt;
+			&lt;h3 align=&quot;center&quot;&gt;Интерфейс приложения&lt;/h3&gt;
+			&lt;div class=&quot;numeric2&quot;&gt;
+				&lt;h4&gt;Главное окно&lt;/h4&gt;
+				
+				&lt;p&gt;Разработка оптимального интерфейса программного продукта была реализована благодаря следованию 	следующих принципов построения интерфейса для пользователя:&lt;/p&gt;
+				&lt;p&gt;- интерфейс должен быть интуитивно понятным. Таким, чтобы пользователю не требовалось объяснять как им пользоваться;&lt;/p&gt;
+				&lt;p&gt;- для упрощения процесса изучения необходима справка. Буквально – графическая подсказка, объясняющая значение того или иного элемента интерфейса. Полное руководство должно быть частью интерфейса, доступной в любой момент;&lt;/p&gt;
+				&lt;p&gt;- возврат пользователя в то место, где им была закончена работа во-время прошлой сессии;&lt;/p&gt;
+				&lt;p&gt;- чаще всего, пользователи в интерфейсе сначала ищут сущность(существительное), а затем действие(глагол) к ней;&lt;/p&gt;
+				&lt;p&gt;- чем быстрее человек увидит результат – тем лучше. Пример – «живой» поиск, когда варианты, в процессе набора поискового запроса. Основной принцип: программа должна взаимодействовать с пользователем на основе наименьшей значимой единицы ввода.&lt;/p&gt;
+				&lt;p&gt;Исходя из этих несложных принципов, был спроектирован интуитивно понятный интерфейс, в котором есть все необходимое для реализации поставленной цели дипломного проекта.&lt;/p&gt;
+			&lt;/div&gt;
 
-      &lt;div class=&quot;code&quot;&gt;local infinity = false -- true - òîëüêî ïîäáèðàþòñÿ,false - ïîäáèðàþòñÿ è çàêàí÷èâàþòñÿ&lt;/div&gt; &lt;/p&gt;
-&lt;p&gt; Åñëè ïàòðîíû íà õóäå â íåñòàíäàðòíîì ìåñòå,òî êîîðäèíàòû ñ÷åò÷èêà áîëòîâ ìîæíî èçìåíèòü â ñòðîêå
+			&lt;div class=&quot;numeric2&quot;&gt;
+				&lt;h4&gt;Окно просмотра записей&lt;/h4&gt;
 
-      &lt;div class=&quot;code&quot;&gt;st:Init(1024-160,768-65,110,50)&lt;/div&gt; &lt;/p&gt;
-&lt;p&gt; Â ýòîé âåðñèè êàðäèíàëüíî èçìåíåíà ñõåìà ïîèìêè áðîøåííîãî áîëòà.
-&lt;br&gt;
-      Ïàðàìåòð &lt;span class=&quot;descr&quot;&gt;destroy_time&lt;/span&gt; â êîíôèãå áîëòîâ ìîæåò áûòü ëþáîé.
-&lt;br&gt;
-      Òåïåðü íåò óáîðùèêà áîëòîâ,ò.ê. áîëòû íå ôåéêîâûå,à îáû÷íûå,êîòîðûå êèäàåò ÃÃ.Èõ îáúåêò íå èìååò ñåðâåðíîé ÷àñòè, è ïîýòîìó îíè èñ÷åçàþò ïðè âûõîäå ñ óðîâíÿ àâòîìàòè÷åñêè.Ïî ýòîé æå ïðè÷èíå âîçíèêàåò æåëòîå ïðåäóïðåæäåíèå â êîíñîëè òèïà
-&lt;br&gt;
-      ~ ERROR: can't detach independant object. entity[bolt:21248], parent[single_player:0], section[bolt]
-&lt;br&gt;
-      Ýòî íå êðèòè÷íî. &lt;/p&gt;
-&lt;/body&gt;  
-&lt;/html&gt; </string>
-     </property>
+				&lt;p&gt;При запуске программного продукта, пользователю предоставляется во внимание главное окно приложения, в котором содержится два элемента управления в виде клавиш, отвечающих за создание нового файла, либо открытие, ранее созданного.&lt;/p&gt;
+				&lt;center&gt;&lt;img src=&quot;:/html/help/images/html/help/ru/mainwindow.jpg&quot;&gt;&lt;/center&gt;
+			&lt;/div&gt;
+
+		&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>

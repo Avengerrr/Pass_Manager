@@ -1076,3 +1076,9 @@ void MainWindow::on_actionAbout_triggered()
     dialog->setModal(true);
     dialog->exec();
 }
+
+void MainWindow::on_actionHelp_triggered()
+{
+    auto dialog = new HelpDialog(this);
+    dialog->exec();
+}

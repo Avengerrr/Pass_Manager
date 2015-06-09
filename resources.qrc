@@ -13,4 +13,8 @@
         <file>images/16x16/document-new.png</file>
         <file>images/logotip.png</file>
     </qresource>
+    <qresource prefix="/html/help" lang="ru">
+        <file>images/html/help/ru/mainwindow.jpg</file>
+    </qresource>
+    <qresource prefix="/html/help" lang="en"/>
 </RCC>

@@ -121,6 +121,8 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void on_actionHelp_triggered();
+
 protected:
     void closeEvent(QCloseEvent *);
 };
