@@ -88,7 +88,8 @@ bool MainWindow::setPage(PageIndex::PageIndex index)
         ui.MainToolBar->setVisible( true );
         ui.StatusBar->setVisible(   true );
         int time = ui.SpinBox_Open_sessionTimeOut->value();
-        QTimer::singleShot(time*60*1000, this, SLOT(sessionTimeout()) );
+        _sessionTimer.start( time*60*1000 );
+//        QTimer::singleShot(time*60*1000, this, SLOT(sessionTimeout()) );
     }else if(    index == PageIndex::FIRST
                || index == PageIndex::OPEN_FILE
                || index == PageIndex::NEW_FILE
@@ -143,7 +144,7 @@ void MainWindow::setDataToInfoPanel(const Data &data)
                                 "<strong>" + tr("Group:")+ "</strong> " + data.group().toHtmlEscaped() +
                               "</td>"
                               "<td width='50%'>"
-                                "<strong>" + tr("Creation:")+ "</strong> " + create.toString("dd/mm/yyyy") +
+                                "<strong>" + tr("Creation:")+ "</strong> " + create.toString("dd/MM/yyyy") +
                               "</td>"
                             "</tr>";
     QString htmlTableRow2 = "<tr>"
@@ -151,7 +152,7 @@ void MainWindow::setDataToInfoPanel(const Data &data)
                                 "<strong>" + tr("Login:")+ "</strong> " + data.login().toHtmlEscaped() +
                               "</td>"
                               "<td>"
-                                "<strong>" + tr("Expiration:")+ "</strong> " + "<span style='"+ cssExpired +"'>" + life.toString("dd/mm/yyyy") + "</span>" +
+                                "<strong>" + tr("Expiration:")+ "</strong> " + "<span style='"+ cssExpired +"'>" + life.toString("dd/MM/yyyy") + "</span>" +
                               "</td>"
                             "</tr>";
     QString htmlTableRow3 = "<tr>"
@@ -275,6 +276,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui.actionOpenRecentDatabase->setMenu( recentDocuments );
 
     ui.StatusBar->addWidget( &_statusBar_countRecords );
+
+    connect( &_sessionTimer, SIGNAL(timeout()), this, SLOT(sessionTimeout()) );
 }
 
 void MainWindow::closeEvent(QCloseEvent *){
