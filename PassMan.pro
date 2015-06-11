@@ -58,5 +58,4 @@ RESOURCES += \
     resources.qrc
 
 TRANSLATIONS += \
-    l10n/PassMan_ru.ts \
-    l10n/PassMan_en.ts
+    l10n/PassMan_ru.ts
