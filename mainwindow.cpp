@@ -252,11 +252,27 @@ bool MainWindow::goPage_LOCK()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    QSettings cfg;
+    QLocale::Language language = static_cast<QLocale::Language>( cfg.value( Options::LANGUAGE, QLocale::Russian ).toInt());
+    if( language == 0 ){
+        language = QLocale::system().language();
+    }
+
+
+
     ui.setupUi(this);
+
+    if( language == QLocale::Russian ){
+        emit ui.actionRussian->triggered( true );
+    }else{
+        emit ui.actionEnglish->triggered( true );
+    }
+
+
     ui.splitter_2->setStretchFactor(0, 1);
     ui.splitter_2->setStretchFactor(1, 3);
 
-    QSettings cfg;
+
     if( cfg.contains( Options::LAST_FILE_PATH ) ){
         setPage( PageIndex::OPEN_FILE );
         emit ui.actionOpenDatabase->triggered();
@@ -388,6 +404,11 @@ void MainWindow::updateMainTable()
                    group );
     _modelMainTable.setQuery( sql );
     setAdaptiveLastColumn();
+
+    _modelMainTable.setHeaderData(1, Qt::Horizontal, tr("Title"), Qt::DisplayRole);
+    _modelMainTable.setHeaderData(2, Qt::Horizontal, tr("URL"), Qt::DisplayRole);
+    _modelMainTable.setHeaderData(3, Qt::Horizontal, tr("Login"), Qt::DisplayRole);
+    _modelMainTable.setHeaderData(4, Qt::Horizontal, tr("Password"), Qt::DisplayRole);
 }
 
 /*!
@@ -1084,4 +1105,44 @@ void MainWindow::on_actionHelp_triggered()
 {
     auto dialog = new HelpDialog(this);
     dialog->exec();
+}
+
+void MainWindow::on_actionRussian_triggered(bool checked)
+{
+    if( checked ){
+        ui.actionEnglish->setChecked( !checked );
+
+        if( ! qtTr.load( "://l10n/qtbase_ru.qm" ) )
+            qDebug() << "Don't load qtBase russian localization";
+
+        if( ! appTr.load( "://l10n/PassMan_ru.qm" ) )
+            qDebug() << "Don't load qtApp russian localization";
+
+        qApp->installTranslator(&qtTr);
+        qApp->installTranslator(&appTr);
+        ui.retranslateUi(this);
+        updateSectionsList();
+        updateMainTable();
+
+        QSettings cfg;
+        cfg.setValue( Options::LANGUAGE, QLocale::Russian );
+    }
+}
+
+void MainWindow::on_actionEnglish_triggered(bool checked)
+{
+    if( checked ){
+        ui.actionRussian->setChecked( !checked );
+
+        qtTr.load( "" );
+        appTr.load( "" );
+        qApp->installTranslator(&qtTr);
+        qApp->installTranslator(&appTr);
+        ui.retranslateUi(this);
+        updateSectionsList();
+        updateMainTable();
+
+        QSettings cfg;
+        cfg.setValue( Options::LANGUAGE, QLocale::English );
+    }
 }

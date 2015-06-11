@@ -9,6 +9,7 @@
 #include <QSqlTableModel>
 #include <QSystemTrayIcon>
 #include <QTimer>
+#include <QTranslator>
 #include "recentdocuments.h"
 
 namespace PageIndex{
@@ -27,6 +28,9 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
+    QTranslator qtTr;
+    QTranslator appTr;
+
     bool              _existsChanges = false;
     ConnectionManager _db;
     Data              _data;
@@ -122,6 +126,10 @@ private slots:
     void on_actionAbout_triggered();
 
     void on_actionHelp_triggered();
+
+    void on_actionRussian_triggered(bool checked);
+
+    void on_actionEnglish_triggered(bool checked);
 
 protected:
     void closeEvent(QCloseEvent *);
