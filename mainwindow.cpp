@@ -87,8 +87,8 @@ bool MainWindow::setPage(PageIndex::PageIndex index)
         ui.MainMenuBar->setVisible( true );
         ui.MainToolBar->setVisible( true );
         ui.StatusBar->setVisible(   true );
-        int time = ui.SpinBox_Open_sessionTimeOut->value();
-        _sessionTimer.start( time*60*1000 );
+
+        _sessionTimer.start( _sessionTime*60*1000 );
 //        QTimer::singleShot(time*60*1000, this, SLOT(sessionTimeout()) );
     }else if(    index == PageIndex::FIRST
                || index == PageIndex::OPEN_FILE
@@ -267,6 +267,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }else{
         emit ui.actionEnglish->triggered( true );
     }
+
 
 
     ui.splitter_2->setStretchFactor(0, 1);
@@ -453,11 +454,12 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
 {
     QSettings cfg;
 
-    int bufferSize        = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toInt();
-    QString achtungDbPath = getTmpDbPath();
-    QString encDbPath     = ui.LineEdit_Open_FilePath->text();
-    QByteArray password   = getPasswordHash( ui.LineEdit_Open_Password->text() );
-    QByteArray salt       = getSaltForPassword( ui.LineEdit_Open_Password->text() );
+    int        bufferSize    = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toInt();
+    QString    achtungDbPath = getTmpDbPath();
+    QString    encDbPath     = ui.LineEdit_Open_FilePath->text();
+    QByteArray password      = getPasswordHash( ui.LineEdit_Open_Password->text() );
+    QByteArray salt          = getSaltForPassword( ui.LineEdit_Open_Password->text() );
+               _sessionTime  = ui.SpinBox_Open_sessionTimeOut->value();
 
     if( _dbFileProcessing ){
         qWarning() << "Чёта ты не в тот район забрёл...";
@@ -475,6 +477,7 @@ void MainWindow::on_PButton_Open_OpenFile_clicked()
     _passwordHash = password;
     connectToDatabase(achtungDbPath);
     setPage( PageIndex::MAIN );
+    _modelGroupsList.clear();
     updateMainTable();
     updateSectionsList();
     HideColumns();
@@ -838,12 +841,13 @@ void MainWindow::createEmptyFile(const QString &path)
 
 void MainWindow::on_PButton_New_CreateDatabase_clicked()
 {
-    QSettings cfg;
+    QSettings  cfg;
     QByteArray password      = getPasswordHash( ui.LineEdit_New_Password->text() );
     QByteArray salt          = getSaltForPassword( ui.LineEdit_New_Password->text() );
     QString    achtungDbPath = getTmpDbPath();
     QString    encDbPath     = ui.LineEdit_New_FilePath->text();
     int        bufferSize    = cfg.value( Options::BUFFER_SIZE, DefaultValues::BUFFER_SIZE).toInt();
+               _sessionTime  = ui.SpinBox_New_SessionTime->value();
 
     if( _dbFileProcessing ){
         qWarning() << "Чёта ты не в тот район забрёл...";
@@ -856,12 +860,17 @@ void MainWindow::on_PButton_New_CreateDatabase_clicked()
     connectToDatabase( achtungDbPath );
     _passwordHash = password;
 
+    _modelGroupsList.clear();
     updateMainTable();
     HideColumns();
     setPage( PageIndex::MAIN );
 
     cfg.setValue( Options::LAST_FILE_PATH , encDbPath );
     _recentDocuments.addLastDocument( encDbPath );
+
+    ui.LineEdit_New_FilePath->clear();
+    ui.LineEdit_New_Password->clear();
+    ui.LineEdit_New_ConfirmPassword->clear();
 }
 
 void MainWindow::on_actionSaveDatabase_triggered()
@@ -1111,6 +1120,8 @@ void MainWindow::on_actionRussian_triggered(bool checked)
 {
     if( checked ){
         ui.actionEnglish->setChecked( !checked );
+        ui.TButton_First_LangSwitch->setText( "en" );
+
 
         if( ! qtTr.load( "://l10n/qtbase_ru.qm" ) )
             qDebug() << "Don't load qtBase russian localization";
@@ -1126,6 +1137,11 @@ void MainWindow::on_actionRussian_triggered(bool checked)
 
         QSettings cfg;
         cfg.setValue( Options::LANGUAGE, QLocale::Russian );
+
+        QString recCount = countRecords();
+        _statusBar_countRecords.setText( tr("Record count: ") + recCount );
+
+        _currentLanguage = QLocale::Russian;
     }
 }
 
@@ -1133,6 +1149,7 @@ void MainWindow::on_actionEnglish_triggered(bool checked)
 {
     if( checked ){
         ui.actionRussian->setChecked( !checked );
+        ui.TButton_First_LangSwitch->setText( "ru" );
 
         qtTr.load( "" );
         appTr.load( "" );
@@ -1144,5 +1161,19 @@ void MainWindow::on_actionEnglish_triggered(bool checked)
 
         QSettings cfg;
         cfg.setValue( Options::LANGUAGE, QLocale::English );
+
+        QString recCount = countRecords();
+        _statusBar_countRecords.setText( tr("Record count: ") + recCount );
+
+        _currentLanguage = QLocale::English;
+    }
+}
+
+void MainWindow::on_TButton_First_LangSwitch_clicked()
+{
+    if( _currentLanguage == QLocale::English ){
+        emit on_actionRussian_triggered(true);
+    }else{
+        emit on_actionEnglish_triggered(true);
     }
 }

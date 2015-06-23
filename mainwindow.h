@@ -41,6 +41,9 @@ private:
     RecentDocuments   _recentDocuments;
     QLabel            _statusBar_countRecords;
     QTimer            _sessionTimer;
+    QLocale::Language _currentLanguage;
+
+    int               _sessionTime = 5;
 
     DbFileProcessing *_dbFileProcessing = nullptr;
 
@@ -130,6 +133,8 @@ private slots:
     void on_actionRussian_triggered(bool checked);
 
     void on_actionEnglish_triggered(bool checked);
+
+    void on_TButton_First_LangSwitch_clicked();
 
 protected:
     void closeEvent(QCloseEvent *);
