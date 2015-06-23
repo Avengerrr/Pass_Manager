@@ -31,7 +31,7 @@
     <message>
         <location filename="../aboutdialog.ui" line="95"/>
         <source>Source code: &lt;a href=&quot;https://github.com/Avengerrr/Pass_Manager&quot;&gt;GitHub&lt;/a&gt;</source>
-        <translation>Исходный код: GitHub</translation>
+        <translation>Исходный код: &lt;a href=&quot;https://github.com/Avengerrr/Pass_Manager&quot;&gt;GitHub&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -97,7 +97,7 @@
     <message>
         <location filename="../mainwindow.ui" line="243"/>
         <source> min</source>
-        <translation>мин</translation>
+        <translation> мин</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="272"/>
@@ -209,7 +209,7 @@
     <message>
         <location filename="../mainwindow.ui" line="874"/>
         <source>Use following  character groups:</source>
-        <translation></translation>
+        <translation>Используемые группы символов:</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="880"/>
@@ -254,7 +254,7 @@
     <message>
         <location filename="../mainwindow.ui" line="974"/>
         <source>Generate</source>
-        <translation>Генерация</translation>
+        <translation>Сгенерировать</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1038"/>
@@ -346,7 +346,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1288"/>
         <source>New record</source>
-        <translation>Новый запись</translation>
+        <translation>Новая запись</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1291"/>
@@ -387,7 +387,7 @@
         <location filename="../mainwindow.ui" line="1330"/>
         <location filename="../mainwindow.ui" line="1333"/>
         <source>Copy name in clipboard</source>
-        <translation>Копирование логина в буффер обмена</translation>
+        <translation>Копировать логин в буффер обмена</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1336"/>
@@ -398,7 +398,7 @@
         <location filename="../mainwindow.ui" line="1345"/>
         <location filename="../mainwindow.ui" line="1348"/>
         <source>Copy password in clipboard</source>
-        <translation>Копирование пароля в буффер обмена</translation>
+        <translation>Копировать пароль в буффер обмена</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1351"/>
@@ -501,7 +501,7 @@
         <location filename="../mainwindow.cpp" line="725"/>
         <location filename="../mainwindow.cpp" line="779"/>
         <source>Record count: </source>
-        <translation>Количества записей:</translation>
+        <translation>Количество записей:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="582"/>

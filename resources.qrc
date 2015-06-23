@@ -14,6 +14,10 @@
         <file>images/logotip.png</file>
         <file>l10n/qtbase_ru.qm</file>
         <file>l10n/PassMan_ru.qm</file>
+        <file>images/16x16/www.png</file>
+        <file>images/logotipmain.png</file>
+        <file>images/888.png</file>
+        <file>images/logo.png</file>
     </qresource>
     <qresource prefix="/html/help" lang="ru">
         <file>images/html/help/ru/mainwindow.jpg</file>
