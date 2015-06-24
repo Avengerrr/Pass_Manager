@@ -264,8 +264,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if( language == QLocale::Russian ){
         emit ui.actionRussian->triggered( true );
+        ui.TButton_First_LangSwitch->setText( "en" );
     }else{
         emit ui.actionEnglish->triggered( true );
+        ui.TButton_First_LangSwitch->setText( "ru" );
     }
 
 
@@ -1120,7 +1122,6 @@ void MainWindow::on_actionRussian_triggered(bool checked)
 {
     if( checked ){
         ui.actionEnglish->setChecked( !checked );
-        ui.TButton_First_LangSwitch->setText( "en" );
 
 
         if( ! qtTr.load( "://l10n/qtbase_ru.qm" ) )
@@ -1149,7 +1150,6 @@ void MainWindow::on_actionEnglish_triggered(bool checked)
 {
     if( checked ){
         ui.actionRussian->setChecked( !checked );
-        ui.TButton_First_LangSwitch->setText( "ru" );
 
         qtTr.load( "" );
         appTr.load( "" );
@@ -1173,7 +1173,9 @@ void MainWindow::on_TButton_First_LangSwitch_clicked()
 {
     if( _currentLanguage == QLocale::English ){
         emit on_actionRussian_triggered(true);
+        ui.TButton_First_LangSwitch->setText( "ru" );
     }else{
         emit on_actionEnglish_triggered(true);
+        ui.TButton_First_LangSwitch->setText( "en" );
     }
 }
