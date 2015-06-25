@@ -136,6 +136,8 @@ private slots:
 
     void on_TButton_First_LangSwitch_clicked();
 
+    void on_actionEnglish_triggered();
+
 protected:
     void closeEvent(QCloseEvent *);
 };
