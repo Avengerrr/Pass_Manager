@@ -19,8 +19,4 @@
         <file>images/888.png</file>
         <file>images/logo.png</file>
     </qresource>
-    <qresource prefix="/html/help" lang="ru">
-        <file>images/html/help/ru/mainwindow.jpg</file>
-    </qresource>
-    <qresource prefix="/html/help" lang="en"/>
 </RCC>

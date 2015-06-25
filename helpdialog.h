@@ -12,7 +12,7 @@ class HelpDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HelpDialog(QWidget *parent = 0);
+    explicit HelpDialog(const QString &file, QWidget *parent = 0);
     ~HelpDialog();
 
 private:

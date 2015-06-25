@@ -1114,7 +1114,14 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionHelp_triggered()
 {
-    auto dialog = new HelpDialog(this);
+    QString file = QDir::currentPath() + QDir::separator();
+    if( _currentLanguage == QLocale::Russian ){
+        file += "help_ru.html";
+    }else{
+        file += "help_eng.html";
+    }
+    qDebug() << file;
+    auto dialog = new HelpDialog(file, this);
     dialog->exec();
 }
 
