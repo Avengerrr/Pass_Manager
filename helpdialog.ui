@@ -30,8 +30,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>737</width>
-        <height>1476</height>
+        <width>751</width>
+        <height>399</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -61,82 +61,15 @@
    		}</string>
          </property>
          <property name="text">
-          <string>&lt;!DOCTYPE html&gt; 
-&lt;html&gt;
-&lt;head&gt;
-	&lt;meta charset='utf-8'&gt;
-	&lt;title&gt;Help&lt;/title&gt;
-	&lt;style&gt;
-   		li { list-style-type: none; } /* Убираем исходную нумерацию у списка */
-   		ol { counter-reset: list1; } /* Инициируем счетчик */
-   		ol li:before {
-	    	counter-increment: list1; /* Увеличиваем значение счетчика */
-	    	content: counter(list1) &quot;. &quot;; /* Выводим число */
-   		}
-   		ol ol { counter-reset: list2; } /* Инициируем счетчик вложенного списка */
-   		ol ol li:before {
-	    	counter-increment: list2; /* Увеличиваем значение счетчика вложенного списка */
-	    	content: counter(list1) &quot;.&quot; counter(list2) &quot;. &quot;; /* Выводим число */
-   		}
-   		.numeric { counter-reset: listh1; } /* Инициируем счетчик */
-   		.numeric h3:before {
-	    	counter-increment: listh1; /* Увеличиваем значение счетчика */
-	    	content: counter(listh1) &quot;. &quot;; /* Выводим число */
-   		}
-   		.numeric .numeric2 { counter-reset: listh2; } /* Инициируем счетчик вложенного списка */
-   		.numeric .numeric2 h4:before {
-	    	counter-increment: listh2; /* Увеличиваем значение счетчика вложенного списка */
-	    	content: counter(listh1) &quot;.&quot; counter(listh2) &quot;. &quot;; /* Выводим число */
-   		}
-  &lt;/style&gt;
-&lt;/head&gt;
-&lt;body background=&quot;img/Paper.jpg&quot; font=&quot;Georgia&quot;&gt;
-	&lt;h3&gt;Справочник пользователя&lt;/h3&gt;
-		&lt;hr&gt;
-		&lt;h3&gt;Содержание:&lt;/h3&gt;
-		&lt;ol&gt;
-	  		&lt;li&gt;Интерфейс приложения&lt;/li&gt;
-	  		&lt;ol&gt;
-	    		&lt;li&gt;Главное окно&lt;/li&gt;
-	    		&lt;li&gt;Окно просмотра записей&lt;/li&gt;
-	    		&lt;li&gt;Окно добавления записи&lt;/li&gt;
-	    		&lt;li&gt;Окно блокировки&lt;/li&gt;
-	  		&lt;/ol&gt;
-	  		&lt;li&gt;Дополнительная информация&lt;/li&gt;
-	  		&lt;ol&gt;
-	    		&lt;li&gt;Горячие клавиши&lt;/li&gt;
-	    		&lt;li&gt;Служба поддержки&lt;/li&gt;
-	    		&lt;li&gt;Исходный код&lt;/li&gt;
-	  		&lt;/ol&gt;
-		&lt;/ol&gt;
-
-		&lt;hr&gt;
-		&lt;div class=&quot;numeric&quot;&gt;
-			&lt;h3 align=&quot;center&quot;&gt;Интерфейс приложения&lt;/h3&gt;
-			&lt;div class=&quot;numeric2&quot;&gt;
-				&lt;h4&gt;Главное окно&lt;/h4&gt;
-				
-				&lt;p&gt;Разработка оптимального интерфейса программного продукта была реализована благодаря следованию 	следующих принципов построения интерфейса для пользователя:&lt;/p&gt;
-				&lt;p&gt;- интерфейс должен быть интуитивно понятным. Таким, чтобы пользователю не требовалось объяснять как им пользоваться;&lt;/p&gt;
-				&lt;p&gt;- для упрощения процесса изучения необходима справка. Буквально – графическая подсказка, объясняющая значение того или иного элемента интерфейса. Полное руководство должно быть частью интерфейса, доступной в любой момент;&lt;/p&gt;
-				&lt;p&gt;- возврат пользователя в то место, где им была закончена работа во-время прошлой сессии;&lt;/p&gt;
-				&lt;p&gt;- чаще всего, пользователи в интерфейсе сначала ищут сущность(существительное), а затем действие(глагол) к ней;&lt;/p&gt;
-				&lt;p&gt;- чем быстрее человек увидит результат – тем лучше. Пример – «живой» поиск, когда варианты, в процессе набора поискового запроса. Основной принцип: программа должна взаимодействовать с пользователем на основе наименьшей значимой единицы ввода.&lt;/p&gt;
-				&lt;p&gt;Исходя из этих несложных принципов, был спроектирован интуитивно понятный интерфейс, в котором есть все необходимое для реализации поставленной цели дипломного проекта.&lt;/p&gt;
-			&lt;/div&gt;
-
-			&lt;div class=&quot;numeric2&quot;&gt;
-				&lt;h4&gt;Окно просмотра записей&lt;/h4&gt;
-
-				&lt;p&gt;При запуске программного продукта, пользователю предоставляется во внимание главное окно приложения, в котором содержится два элемента управления в виде клавиш, отвечающих за создание нового файла, либо открытие, ранее созданного.&lt;/p&gt;
-				&lt;center&gt;&lt;img src=&quot;:/html/help/images/html/help/ru/mainwindow.jpg&quot;&gt;&lt;/center&gt;
-			&lt;/div&gt;
-
-		&lt;/div&gt;
-&lt;/body&gt;
-&lt;/html&gt;</string>
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
          </property>
          <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="openExternalLinks">
           <bool>true</bool>
          </property>
         </widget>
