@@ -1186,3 +1186,8 @@ void MainWindow::on_TButton_First_LangSwitch_clicked()
         ui.TButton_First_LangSwitch->setText( "en" );
     }
 }
+
+void MainWindow::on_actionEnglish_triggered()
+{
+
+}
